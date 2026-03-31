@@ -9,14 +9,15 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const redirectParams = searchParams.get('redirect') || searchParams.get('next') || '/'
+  const rawRedirect = searchParams.get('redirect') || searchParams.get('next') || '/'
+  const safeRedirect = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/'
 
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      return NextResponse.redirect(new URL(redirectParams, origin))
+      return NextResponse.redirect(new URL(safeRedirect, request.url))
     }
   }
 
