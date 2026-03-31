@@ -188,7 +188,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE messages;
 
 ## ✅ Phase 5 — Pages publiques SEO ✅
 
-**Commit** : `TBD` feat: Phase 5 — Pages publiques SEO
+**Commit** : `mergePR#5` feat: Phase 5 — Pages publiques SEO
 
 **Migration SQL** :
 - `supabase/migrations/003_add_artisan_slug.sql` — Ajout colonne `slug` (UNIQUE, NOT NULL) à `artisans`, trigger auto-génération, backfill
@@ -420,17 +420,23 @@ proxy.ts                         # Protection routes
 
 ### ✅ Phase 6 : Gestion des Profils & RGPD
 - Interfaces `/artisan/profil` et `/particulier/profil` (mise à jour des informations)
-- Fonction de suppression de compte RGPD (via API Admin Supabase)
-- Navigation : Ajout d'une barre de navigation partagée dans les layouts
+- Fonction de suppression de compte RGPD automatisée (via API Admin Supabase `deleteUser` en cascade)
+- Navigation : Ajout d'une barre de navigation claire et globale dans les layout guards
 
 ### ✅ Phase 7 : Polissage & Dashboard Expert
-- Vue "Mes Devis" pour l'artisan (`/artisan/mes-reponses`)
-- Intégration d'Empty States stylisés pour les chantiers, Dashboard, et Conversations
+- Vue "Mes Devis" pour l'artisan (`/artisan/mes-reponses`) pour suivre l'état (`acceptee`, `en_attente`, `refusee`)
+- Intégration d'Empty States stylisés pour toutes les listes vides (Tableaux, conversations, feed)
+- Résolution stricte des TypeScript warnings.
+
+### ✅ Phase 7.5 : Trous Fonctionnels (MVP)
+- Clôture de Projet : Permet aux particuliers de classer un projet comme `en_cours` ou `annule` supprimant l'annonce des Feeds artisans.
+- Mot de passe oublié : Flow complet avec lien par mail (Supabase API) + `/nouveau-mot-de-passe`.
 
 ### 🔲 Phase 8 : Monétisation (Paiement Stripe / V2)
 
 | Hash | Message | PR |
 |---|---|---|
+| `TBD` | feat: Phase 5 to 7.5 — Profil, UI, RGPD, Flow Utils | #5 |
 | `87921e5` | feat: Phase 4 — Messagerie temps réel | #4 |
 | `9678b9b` | feat: Phase 3 — Flux principal (projets, feed, réponses) | #3 |
 | `ef1530a` | feat: Phase 2 — Auth & Profils | #2 |
@@ -449,4 +455,4 @@ proxy.ts                         # Protection routes
 
 ---
 
-**Maintenant prêt pour Phase 5 ! 🚀**
+**Maintenant prêt pour Phase 8 (Stripe) ! 🚀**
