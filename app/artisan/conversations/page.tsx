@@ -19,65 +19,21 @@ export default async function ArtisanConversationsPage() {
   const artisan = artisanRaw as { id: string } | null
   if (!artisan) redirect('/artisan/onboarding')
 
-  // Fetch conversations with project title and particulier info
-  const { data: conversationsRaw } = await supabase
-    .from('conversations')
-    .select(`
-      id,
-      created_at,
-      projets ( titre ),
-      particuliers (
-        profil_id,
-        profiles ( prenom, nom )
-      )
-    `)
+  // Fetch conversations leveraging SQL View (N+1 fixed)
+  const { data: conversationDataRaw } = await supabase
+    .from('v_conversations_details')
+    .select('*')
     .eq('artisan_id', artisan.id)
-    .order('created_at', { ascending: false })
+    .order('last_message_date', { ascending: false, nullsFirst: false })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const conversations = conversationsRaw as any[] | null
-
-  // Fetch last message + unread count for each conversation
-  const conversationData = await Promise.all(
-    (conversations ?? []).map(async (conv) => {
-      const { data: lastMsgRaw } = await supabase
-        .from('messages')
-        .select('contenu, created_at')
-        .eq('conversation_id', conv.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-
-      const lastMsg = lastMsgRaw as { contenu: string; created_at: string } | null
-
-      const { count: unreadCount } = await supabase
-        .from('messages')
-        .select('id', { count: 'exact', head: true })
-        .eq('conversation_id', conv.id)
-        .eq('lu', false)
-        .neq('auteur_id', user.id)
-
-      const particulierProfile = (conv.particuliers as any)?.profiles
-      const interlocuteurNom = particulierProfile
-        ? `${particulierProfile.prenom} ${particulierProfile.nom}`
-        : 'Particulier'
-
-      return {
-        id: conv.id,
-        projetTitre: (conv.projets as any)?.titre ?? 'Projet',
-        interlocuteurNom,
-        lastMessage: lastMsg?.contenu ?? null,
-        lastMessageDate: lastMsg?.created_at ?? conv.created_at,
-        unreadCount: unreadCount ?? 0,
-      }
-    })
-  )
-
-  // Sort by last message date
-  conversationData.sort((a, b) =>
-    new Date(b.lastMessageDate ?? 0).getTime() -
-    new Date(a.lastMessageDate ?? 0).getTime()
-  )
+  const conversationData = (conversationDataRaw ?? []).map((conv: any) => ({
+    id: conv.conversation_id,
+    projetTitre: conv.projet_titre,
+    interlocuteurNom: `${conv.particulier_prenom} ${conv.particulier_nom}`,
+    lastMessage: conv.last_message,
+    lastMessageDate: conv.last_message_date ?? conv.conversation_created_at,
+    unreadCount: conv.unread_artisan_count,
+  }))
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">

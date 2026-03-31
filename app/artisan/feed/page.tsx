@@ -39,7 +39,7 @@ export default async function ArtisanFeedPage() {
     .select(`
       *,
       categories_metiers ( libelle ),
-      reponses ( id, artisan_id )
+      reponses ( id )
     `)
     .eq('statut', 'ouvert')
     .in('categorie_id', artisanCategorieIds.length > 0 ? artisanCategorieIds : [-1])
@@ -48,18 +48,13 @@ export default async function ArtisanFeedPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const projets = projetsRaw as any[] | null
 
-  // Check which projects this artisan already responded to
-  const respondedProjectIds = new Set(
-    projets
-      ?.flatMap((p) => p.reponses ?? [])
-      .filter((r: { artisan_id: string }) => r.artisan_id === artisan.id)
-      .map((r: { artisan_id: string; id: string }) =>
-        projets?.find((p) =>
-          p.reponses?.some((re: { id: string }) => re.id === r.id)
-        )?.id
-      )
-      .filter(Boolean) ?? []
-  )
+  // Check which projects this artisan already responded to in a single query
+  const { data: myResponses } = await supabase
+    .from('reponses')
+    .select('projet_id')
+    .eq('artisan_id', artisan.id)
+
+  const respondedProjectIds = new Set(myResponses?.map((r: any) => r.projet_id) ?? [])
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">

@@ -38,13 +38,7 @@ export async function proxy(request: NextRequest) {
 
   // 4. Role-based access control + onboarding redirect
   if (user && isProtected) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single<{ role: 'particulier' | 'artisan' }>()
-
-    const role = profile?.role
+    const role = user.user_metadata?.role as 'particulier' | 'artisan' | undefined
 
     // Wrong role — redirect to the correct area
     if (pathname.startsWith('/particulier') && role !== 'particulier') {
@@ -88,13 +82,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/connexion') || pathname.startsWith('/inscription')
 
   if (user && isAuthPage) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single<{ role: 'particulier' | 'artisan' }>()
-
-    const role = profile?.role
+    const role = user.user_metadata?.role as 'particulier' | 'artisan' | undefined
     const destination =
       role === 'artisan' ? '/artisan/feed' : '/particulier/dashboard'
 
