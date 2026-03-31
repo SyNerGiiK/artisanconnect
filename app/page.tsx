@@ -52,21 +52,32 @@ export default async function HomePage() {
       {/* ── NAVIGATION ───────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="text-xl font-bold text-indigo-600">
+          <Link href="/" className="text-xl font-bold text-blue-600">
             ArtisanConnect
           </Link>
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#comment-ca-marche" className="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
+              Comment ça marche
+            </a>
+            <a href="#tarifs" className="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
+              Tarifs
+            </a>
+            <a href="#nos-metiers" className="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
+              Nos métiers
+            </a>
+          </div>
           <div className="flex items-center gap-3">
             <Link
               href="/connexion"
               className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
             >
-              Connexion
+              Se connecter
             </Link>
             <Link
               href="/inscription"
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
             >
-              Inscription gratuite
+              S&apos;inscrire
             </Link>
           </div>
         </div>
@@ -74,18 +85,18 @@ export default async function HomePage() {
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-purple-50" />
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-indigo-100/50 blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50" />
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-blue-100/50 blur-3xl" />
 
         <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32 lg:py-40">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-700 ring-1 ring-indigo-200">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700 ring-1 ring-blue-200">
               <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse" />
               Lancement en Vendée (85)
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
               Trouvez le bon artisan{' '}
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
                 près de chez vous
               </span>
             </h1>
@@ -97,16 +108,16 @@ export default async function HomePage() {
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Link
                 href="/inscription"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-xl hover:scale-105"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-105"
               >
-                Je suis particulier — C&apos;est gratuit
+                Je cherche un artisan
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </Link>
               <Link
                 href="/inscription"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-indigo-200 bg-white px-8 py-4 text-base font-semibold text-indigo-600 transition-all hover:bg-indigo-50 hover:border-indigo-300"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-blue-200 bg-white px-8 py-4 text-base font-semibold text-blue-600 transition-all hover:bg-blue-50 hover:border-blue-300"
               >
                 Je suis artisan
               </Link>
@@ -116,7 +127,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── COMMENT ÇA MARCHE ─────────────────────────────────────── */}
-      <section className="border-t border-gray-100 bg-gray-50 py-20 sm:py-28">
+      <section id="comment-ca-marche" className="border-t border-gray-100 bg-gray-50 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
@@ -164,7 +175,7 @@ export default async function HomePage() {
                 key={item.step}
                 className="group relative rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-lg hover:-translate-y-1"
               >
-                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
                   {item.icon}
                 </div>
                 <div className="absolute top-6 right-6 text-4xl font-black text-gray-100">
@@ -243,25 +254,25 @@ export default async function HomePage() {
       </section>
 
       {/* ── POUR LES ARTISANS ─────────────────────────────────────── */}
-      <section className="border-t border-gray-100 bg-gradient-to-br from-indigo-50 to-purple-50 py-20 sm:py-28">
+      <section className="border-t border-gray-100 bg-gradient-to-br from-blue-50 to-blue-50 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="order-2 lg:order-1 rounded-2xl bg-white p-10 shadow-lg ring-1 ring-indigo-100">
+            <div className="order-2 lg:order-1 rounded-2xl bg-white p-10 shadow-lg ring-1 ring-blue-100">
               <div className="space-y-6">
                 {[
                   { num: '0%', label: 'de commission' },
                   { num: '50€', label: '/ mois sans engagement' },
                   { num: '∞', label: 'chantiers accessibles' },
                 ].map((stat) => (
-                  <div key={stat.label} className="flex items-center gap-4 rounded-xl bg-indigo-50 p-5">
-                    <div className="text-3xl font-black text-indigo-600">{stat.num}</div>
+                  <div key={stat.label} className="flex items-center gap-4 rounded-xl bg-blue-50 p-5">
+                    <div className="text-3xl font-black text-blue-600">{stat.num}</div>
                     <div className="text-gray-600">{stat.label}</div>
                   </div>
                 ))}
               </div>
             </div>
             <div className="order-1 lg:order-2">
-              <div className="mb-4 inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700 ring-1 ring-indigo-200">
+              <div className="mb-4 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 ring-1 ring-blue-200">
                 Pour les pros
               </div>
               <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
@@ -279,7 +290,7 @@ export default async function HomePage() {
                   'Messagerie directe avec les clients',
                 ].map((text) => (
                   <li key={text} className="flex items-start gap-3">
-                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <span className="text-gray-700">{text}</span>
@@ -288,7 +299,7 @@ export default async function HomePage() {
               </ul>
               <Link
                 href="/inscription"
-                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-indigo-700 hover:shadow-lg"
+                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-700 hover:shadow-lg"
               >
                 Rejoindre ArtisanConnect
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -301,7 +312,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── NOS MÉTIERS ───────────────────────────────────────────── */}
-      <section className="py-20 sm:py-28">
+      <section id="nos-metiers" className="py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
@@ -320,7 +331,7 @@ export default async function HomePage() {
                   key={cat.id}
                   className="group rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-lg hover:-translate-y-1"
                 >
-                  <div className="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+                  <div className="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
                     <IconComponent />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">
@@ -334,7 +345,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── TARIFS ────────────────────────────────────────────────── */}
-      <section className="border-t border-gray-100 bg-gray-50 py-20 sm:py-28">
+      <section id="tarifs" className="border-t border-gray-100 bg-gray-50 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
@@ -366,27 +377,27 @@ export default async function HomePage() {
               </ul>
               <Link
                 href="/inscription"
-                className="mt-8 block w-full rounded-xl border-2 border-indigo-200 py-3 text-center text-sm font-semibold text-indigo-600 transition-colors hover:bg-indigo-50"
+                className="mt-8 block w-full rounded-xl border-2 border-blue-200 py-3 text-center text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-50"
               >
                 Commencer
               </Link>
             </div>
 
             {/* Annuel — populaire */}
-            <div className="relative rounded-2xl bg-indigo-600 p-8 text-white shadow-xl ring-2 ring-indigo-600 transition-shadow hover:shadow-2xl">
+            <div className="relative rounded-2xl bg-blue-600 p-8 text-white shadow-xl ring-2 ring-blue-600 transition-shadow hover:shadow-2xl">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-4 py-1 text-xs font-bold text-amber-900 uppercase tracking-wide">
                 Le + populaire
               </div>
               <h3 className="text-lg font-semibold">Annuel</h3>
-              <p className="mt-1 text-sm text-indigo-200">Économisez 120€/an</p>
+              <p className="mt-1 text-sm text-blue-200">Économisez 120€/an</p>
               <div className="mt-6">
                 <span className="text-4xl font-black">40€</span>
-                <span className="text-indigo-200"> / mois</span>
+                <span className="text-blue-200"> / mois</span>
               </div>
-              <p className="mt-1 text-sm text-indigo-300">facturé 480€/an</p>
+              <p className="mt-1 text-sm text-blue-300">facturé 480€/an</p>
               <ul className="mt-8 space-y-3">
                 {['Tout du mensuel inclus', '2 mois offerts', 'Priorité commerciale', 'Support prioritaire'].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-indigo-100">
+                  <li key={f} className="flex items-center gap-2 text-sm text-blue-100">
                     <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -396,7 +407,7 @@ export default async function HomePage() {
               </ul>
               <Link
                 href="/inscription"
-                className="mt-8 block w-full rounded-xl bg-white py-3 text-center text-sm font-semibold text-indigo-600 transition-all hover:shadow-lg"
+                className="mt-8 block w-full rounded-xl bg-white py-3 text-center text-sm font-semibold text-blue-600 transition-all hover:shadow-lg"
               >
                 Choisir l&apos;annuel
               </Link>
@@ -435,26 +446,69 @@ export default async function HomePage() {
       {/* ── FOOTER ────────────────────────────────────────────────── */}
       <footer className="border-t border-gray-200 bg-white py-12">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
+          <div className="grid gap-8 sm:grid-cols-4">
             <div>
-              <Link href="/" className="text-lg font-bold text-indigo-600">
+              <Link href="/" className="text-lg font-bold text-blue-600">
                 ArtisanConnect
               </Link>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-gray-500">
                 La plateforme équitable pour vos travaux
               </p>
             </div>
-            <div className="flex gap-6 text-sm text-gray-500">
-              <Link href="/inscription" className="hover:text-indigo-600 transition-colors">
-                Inscription
-              </Link>
-              <Link href="/connexion" className="hover:text-indigo-600 transition-colors">
-                Connexion
-              </Link>
+            <div>
+              <h4 className="font-semibold text-gray-900">Produit</h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>
+                  <a href="#comment-ca-marche" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Comment ça marche
+                  </a>
+                </li>
+                <li>
+                  <a href="#tarifs" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Tarifs
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900">Légal</h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    CGU
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    CGV
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Mentions légales
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Politique de confidentialité
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900">Contact</h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li className="text-gray-600">
+                  contact@artisanconnect.fr
+                </li>
+                <li className="text-gray-600">
+                  Vendée (85)
+                </li>
+              </ul>
             </div>
           </div>
           <div className="mt-8 border-t border-gray-100 pt-6 text-center text-sm text-gray-400">
-            © {new Date().getFullYear()} ArtisanConnect — Anti-Travaux.com. Tous droits réservés.
+            © {new Date().getFullYear()} ArtisanConnect. Tous droits réservés.
           </div>
         </div>
       </footer>
