@@ -25,24 +25,28 @@ export default async function ArtisanLayout({
   if (profile?.role !== 'artisan') redirect('/particulier/dashboard')
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/artisan/feed" className="font-bold text-lg text-blue-600">ArtisanConnect Pro</Link>
-            <nav className="hidden sm:flex items-center gap-5 text-sm font-medium text-gray-600">
-              <Link href="/artisan/feed" className="hover:text-gray-900 transition-colors">Chantiers</Link>
-              <Link href="/artisan/mes-reponses" className="hover:text-gray-900 transition-colors">Mes devis / réponses</Link>
-              <Link href="/artisan/conversations" className="hover:text-gray-900 transition-colors">Messages</Link>
+    <div className="min-h-screen bg-white flex flex-col">
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/artisan/feed" className="text-xl font-bold text-blue-600">ArtisanConnect</Link>
+            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+              <Link href="/artisan/feed" className="text-gray-700 hover:text-blue-600 transition-colors">Chantiers</Link>
+              <Link href="/artisan/mes-reponses" className="text-gray-700 hover:text-blue-600 transition-colors">Mes devis</Link>
+              <Link href="/artisan/conversations" className="text-gray-700 hover:text-blue-600 transition-colors">Messages</Link>
+              <Link href="/artisan/profil" className="text-gray-700 hover:text-blue-600 transition-colors">Mon Profil</Link>
             </nav>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/artisan/profil" className="text-sm font-medium text-gray-600 hover:text-gray-900 hidden sm:block">Mon Profil</Link>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+              <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+              Espace Pro
+            </div>
             <SignOutButton />
           </div>
         </div>
       </header>
-      <main className="flex-1">
+      <main className="flex-1 bg-gradient-to-b from-blue-50/50 to-white">
         {children}
       </main>
     </div>

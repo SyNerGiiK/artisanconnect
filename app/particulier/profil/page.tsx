@@ -31,9 +31,21 @@ export default async function ParticulierProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Mon Profil Particulier</h1>
-      <ParticulierProfileForm profile={profile} particulier={particulier} />
+    <div className="mx-auto max-w-2xl px-6 py-12">
+      {/* Header */}
+      <div className="mb-10">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+          Mon Profil
+        </h1>
+        <p className="mt-2 text-gray-600">
+          Gerez vos informations personnelles et vos preferences.
+        </p>
+      </div>
+
+      {/* Card */}
+      <div className="rounded-2xl bg-white p-8 shadow-xl ring-1 ring-gray-100">
+        <ParticulierProfileForm profile={profile} particulier={particulier} />
+      </div>
     </div>
   )
 }
