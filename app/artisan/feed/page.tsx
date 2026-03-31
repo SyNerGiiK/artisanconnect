@@ -65,7 +65,13 @@ export default async function ArtisanFeedPage() {
             zone.
           </p>
         </div>
-        <SignOutButton />
+        <Link
+            href="/artisan/conversations"
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+          >
+            Messages
+          </Link>
+          <SignOutButton />
       </div>
 
       {!artisan.abonnement_actif && (

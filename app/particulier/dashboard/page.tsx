@@ -46,6 +46,12 @@ export default async function ParticulierDashboardPage() {
         </div>
         <div className="flex items-center gap-3">
           <Link
+            href="/particulier/conversations"
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+          >
+            Messages
+          </Link>
+          <Link
             href="/particulier/nouveau-projet"
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
           >
