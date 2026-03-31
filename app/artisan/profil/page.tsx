@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import ArtisanProfileForm from './ArtisanProfileForm'
+import PortalButton from '@/components/stripe/PortalButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,11 +21,13 @@ export default async function ArtisanProfilePage() {
     .single()
 
   // Fetch artisan
-  const { data: artisan } = await supabase
+  const { data: artisanRaw } = await supabase
     .from('artisans')
     .select('*')
     .eq('profil_id', user.id)
     .single()
+
+  const artisan = artisanRaw as any
 
   if (!profile || !artisan) {
     redirect('/artisan/onboarding')
@@ -42,18 +45,25 @@ export default async function ArtisanProfilePage() {
     .select('categorie_id')
     .eq('artisan_id', artisan.id)
 
-  const selectedCategoryIds = artisanCategories?.map((cat) => cat.categorie_id) || []
+  const selectedCategoryIds = artisanCategories?.map((cat: any) => cat.categorie_id) || []
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
       {/* Header */}
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-          Mon Profil Artisan
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Gerez vos informations professionnelles et vos preferences.
-        </p>
+      <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            Mon Profil Artisan
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Gerez vos informations professionnelles et vos preferences.
+          </p>
+        </div>
+        {artisan.abonnement_actif && (
+          <div>
+            <PortalButton />
+          </div>
+        )}
       </div>
 
       {/* Card */}

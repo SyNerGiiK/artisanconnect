@@ -267,12 +267,16 @@ L'algorithme pour déterminer si l'artisan a déjà répondu est O(n²) : boucle
 9. ⬜ Optimiser le proxy (JWT custom claims)
 10. ⬜ Corriger le feed artisan (requête SQL au lieu de O(n²) JS)
 
-### Sprint 3 — Qualité
+### Sprint 3 — Qualité (Prêt)
 11. ⬜ Supprimer tous les `as any` (régénérer les types)
 12. ⬜ Rate limiting sur auth + actions
 13. ⬜ Validation des env vars au démarrage
-14. ⬜ Modale de confirmation sur accepter/refuser
-15. ⬜ Désactiver les boutons pendant la soumission
+14. ⬜ Désactiver les boutons pendant la soumission
+
+### Sprint 4 — Monétisation (SaaS Stripe) (Terminé)
+- [x] Base de données Stripe (Champs customer_id, subscription_id ajoutés et typés)
+- [x] API Routes intégrées (Checkout paywall, Webhook asynchrone bypass, Portail facturation)
+- [x] Composants FrontEnd Stripe (Bouton souscription bloquant, portail, pages feedback)
 
 ### Sprint 4 — Production readiness
 16. ⬜ Monitoring (Sentry / Vercel Analytics)
