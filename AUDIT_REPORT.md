@@ -254,10 +254,10 @@ L'algorithme pour déterminer si l'artisan a déjà répondu est O(n²) : boucle
 ## Plan d'action recommandé
 
 ### Sprint 1 — Sécurité (avant mise en prod)
-1. ⬜ Validation serveur sur TOUS les `actions.ts`
+1. [x] Validation serveur sur TOUS les `actions.ts`
 2. ⬜ Activer confirmation email dans Supabase
-3. ⬜ Corriger open redirect dans `/auth/callback`
-4. ⬜ Améliorer la suppression RGPD (mot de passe requis)
+3. [x] Corriger open redirect dans `/auth/callback`
+4. [x] Améliorer la suppression RGPD (mot de passe requis)
 5. ⬜ Transaction pour les catégories artisan
 
 ### Sprint 2 — Performance
