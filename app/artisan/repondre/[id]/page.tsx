@@ -69,7 +69,7 @@ export default function RepondrePage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <p className="text-gray-500 mb-6">Projet non trouve.</p>
+        <p className="text-gray-500 mb-6">Projet non trouvé.</p>
         <Link 
           href="/artisan/feed" 
           className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
@@ -121,10 +121,10 @@ export default function RepondrePage() {
       {/* Response form */}
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          Repondre a ce chantier
+          Répondre à ce chantier
         </h1>
         <p className="mt-2 text-sm text-gray-600">
-          Presentez-vous et expliquez pourquoi vous etes le bon artisan pour ce projet.
+          Présentez-vous et expliquez pourquoi vous êtes le bon artisan pour ce projet.
         </p>
       </div>
 
@@ -139,7 +139,7 @@ export default function RepondrePage() {
               name="message_initial"
               required
               rows={5}
-              placeholder="Bonjour, je suis disponible pour realiser vos travaux. Voici ce que je propose..."
+              placeholder="Bonjour, je suis disponible pour réaliser vos travaux. Voici ce que je propose..."
               className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
@@ -155,7 +155,7 @@ export default function RepondrePage() {
             disabled={loading}
             className="w-full rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-[1.02] disabled:bg-gray-300 disabled:shadow-none disabled:hover:scale-100"
           >
-            {loading ? 'Envoi en cours...' : 'Envoyer ma reponse'}
+            {loading ? 'Envoi en cours...' : 'Envoyer ma réponse'}
           </button>
         </form>
       </div>

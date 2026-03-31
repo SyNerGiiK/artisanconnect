@@ -55,10 +55,10 @@ export default function NouveauProjetPage() {
           </svg>
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-          Deposer un projet
+          Déposer un projet
         </h1>
         <p className="mt-3 text-gray-600">
-          Decrivez votre projet de travaux. Jusqu&apos;a 3 artisans pourront vous repondre.
+          Décrivez votre projet de travaux. Jusqu&apos;à 3 artisans pourront vous répondre.
         </p>
       </div>
 
@@ -89,7 +89,7 @@ export default function NouveauProjetPage() {
               required
               className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             >
-              <option value="">Choisir une categorie</option>
+              <option value="">Choisir une catégorie</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.libelle}
@@ -107,7 +107,7 @@ export default function NouveauProjetPage() {
               name="description"
               required
               rows={4}
-              placeholder="Decrivez les travaux souhaites, la surface, vos contraintes..."
+              placeholder="Décrivez les travaux souhaités, la surface, vos contraintes..."
               className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>

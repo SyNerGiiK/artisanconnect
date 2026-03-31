@@ -40,7 +40,7 @@ export default async function ArtisanFeedPage() {
     .select(`
       *,
       categories_metiers ( libelle ),
-      reponses ( id )
+      reponses ( id, artisan_id )
     `)
     .eq('statut', 'ouvert')
     .in('categorie_id', artisanCategorieIds.length > 0 ? artisanCategorieIds : [-1])
@@ -49,13 +49,14 @@ export default async function ArtisanFeedPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const projets = projetsRaw as any[] | null
 
-  // Check which projects this artisan already responded to in a single query
-  const { data: myResponses } = await supabase
-    .from('reponses')
-    .select('projet_id')
-    .eq('artisan_id', artisan.id)
-
-  const respondedProjectIds = new Set(myResponses?.map((r: any) => r.projet_id) ?? [])
+  // Check which projects this artisan already responded to — O(n) with Set
+  const respondedProjectIds = new Set<string>()
+  for (const p of projets ?? []) {
+    const hasResponded = (p.reponses ?? []).some(
+      (r: { artisan_id: string }) => r.artisan_id === artisan.id
+    )
+    if (hasResponded) respondedProjectIds.add(p.id)
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
@@ -95,7 +96,7 @@ export default async function ArtisanFeedPage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-3">Aucun chantier disponible</h2>
           <p className="text-gray-500 max-w-sm mx-auto">
-            Il n&apos;y a pas encore de chantiers correspondant a vos criteres dans votre zone d&apos;intervention.
+            Il n&apos;y a pas encore de chantiers correspondant à vos critères dans votre zone d&apos;intervention.
           </p>
         </div>
       ) : (
@@ -114,7 +115,7 @@ export default async function ArtisanFeedPage() {
                   <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">{projet.titre}</h3>
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                      {responseCount}/3 reponse{responseCount > 1 ? 's' : ''}
+                      {responseCount}/3 réponse{responseCount > 1 ? 's' : ''}
                     </span>
                     <StatusBadge statut={projet.statut} />
                   </div>
@@ -151,21 +152,21 @@ export default async function ArtisanFeedPage() {
                     <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Vous avez deja repondu
+                    Vous avez déjà répondu
                   </span>
                 ) : isFull ? (
                   <span className="inline-flex items-center gap-2 text-sm text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg">
                     <svg className="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
-                    3 artisans ont deja repondu
+                    3 artisans ont déjà répondu
                   </span>
                 ) : (
                   <Link
                     href={`/artisan/repondre/${projet.id}`}
                     className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-[1.02]"
                   >
-                    Repondre a ce chantier
+                    Répondre à ce chantier
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>

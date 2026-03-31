@@ -56,7 +56,7 @@ export default async function ArtisanProfilePage() {
             Mon Profil Artisan
           </h1>
           <p className="mt-2 text-gray-600">
-            Gerez vos informations professionnelles et vos preferences.
+            Gérez vos informations professionnelles et vos préférences.
           </p>
         </div>
         {artisan.abonnement_actif && (

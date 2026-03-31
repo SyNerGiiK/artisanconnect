@@ -27,7 +27,7 @@ export default async function MesReponsesPage() {
     .select(`
       id,
       statut,
-      message,
+      message_initial,
       created_at,
       projets (
         id,
@@ -62,15 +62,15 @@ export default async function MesReponsesPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">Aucun devis envoye</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">Aucun devis envoyé</h2>
           <p className="text-gray-500 mb-8 max-w-sm mx-auto">
-            Vous n&apos;avez pas encore repondu a un chantier.
+            Vous n&apos;avez pas encore répondu à un chantier.
           </p>
           <Link 
             href="/artisan/feed" 
             className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-[1.02]"
           >
-            Decouvrir les chantiers
+            Découvrir les chantiers
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
@@ -88,8 +88,8 @@ export default async function MesReponsesPage() {
                     reponse.statut === 'refusee' ? 'bg-red-100 text-red-700 ring-1 ring-red-200' :
                     'bg-amber-100 text-amber-700 ring-1 ring-amber-200'
                   }`}>
-                    {reponse.statut === 'acceptee' ? 'Acceptee' :
-                     reponse.statut === 'refusee' ? 'Refusee' :
+                    {reponse.statut === 'acceptee' ? 'Acceptée' :
+                     reponse.statut === 'refusee' ? 'Refusée' :
                      'En attente'}
                   </span>
                 </div>
@@ -102,13 +102,13 @@ export default async function MesReponsesPage() {
                 </div>
                 
                 <div className="bg-gray-50 p-4 rounded-xl text-sm text-gray-700 italic ring-1 ring-gray-100 line-clamp-2">
-                  &quot;{reponse.message}&quot;
+                  &quot;{reponse.message_initial}&quot;
                 </div>
               </div>
               
               <div className="flex flex-col gap-3 justify-end min-w-[160px]">
                 <span className="text-xs text-center text-gray-500">
-                  Envoye le {new Date(reponse.created_at).toLocaleDateString('fr-FR')}
+                  Envoyé le {new Date(reponse.created_at).toLocaleDateString('fr-FR')}
                 </span>
                 <Link
                   href={`/artisan/conversations`}

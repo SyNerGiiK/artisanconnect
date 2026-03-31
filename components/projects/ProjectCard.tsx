@@ -65,7 +65,7 @@ export default function ProjectCard({
 
       <div className="flex items-center gap-3 text-xs">
         <span className="text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-          {responseCount}/3 reponse{responseCount > 1 ? 's' : ''}
+          {responseCount}/3 réponse{responseCount > 1 ? 's' : ''}
         </span>
         {pendingCount > 0 && (
           <span className="font-medium text-amber-700 bg-amber-50 px-2 py-1 rounded-full ring-1 ring-amber-200">
@@ -74,7 +74,7 @@ export default function ProjectCard({
         )}
         {acceptedCount > 0 && (
           <span className="font-medium text-green-700 bg-green-50 px-2 py-1 rounded-full ring-1 ring-green-200">
-            {acceptedCount} acceptee{acceptedCount > 1 ? 's' : ''}
+            {acceptedCount} acceptée{acceptedCount > 1 ? 's' : ''}
           </span>
         )}
       </div>
