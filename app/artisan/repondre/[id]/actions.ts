@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { validateString } from '@/lib/utils/validation'
 
 export async function submitReponse(projetId: string, formData: FormData) {
   const supabase = await createClient()
@@ -21,7 +22,17 @@ export async function submitReponse(projetId: string, formData: FormData) {
     return { error: 'Votre abonnement doit être actif pour répondre aux chantiers.' }
   }
 
-  const messageInitial = formData.get('message_initial') as string
+  let messageInitial;
+  try {
+    messageInitial = validateString(formData.get('message_initial'), 'Message initial', 20, 2000)
+    
+    // Projet ID UUID format validation
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(projetId)) {
+      throw new Error("L'ID du projet est invalide.")
+    }
+  } catch (e) {
+    return { error: (e as Error).message }
+  }
 
   // Server-side check: max 3 responses per project
   const { count } = await supabase

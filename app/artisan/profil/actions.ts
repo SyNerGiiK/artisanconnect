@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { validateString, validateSiret, validateCodePostal, validateInt } from '@/lib/utils/validation'
 
 export async function updateArtisanProfile(formData: FormData) {
   const supabase = await createClient()
@@ -9,16 +10,21 @@ export async function updateArtisanProfile(formData: FormData) {
 
   if (!user) return { error: 'Non authentifié' }
 
-  const prenom = formData.get('prenom') as string
-  const nom = formData.get('nom') as string
-  const telephone = formData.get('telephone') as string
-  
-  const nomEntreprise = formData.get('nom_entreprise') as string
-  const siret = formData.get('siret') as string
-  const description = formData.get('description') as string
-  const codePostalBase = formData.get('code_postal_base') as string
-  const rayonKm = parseInt(formData.get('rayon_km') as string, 10)
-  const categorieIds = formData.getAll('categorie_ids').map(Number)
+  let prenom, nom, telephone, nomEntreprise, siret, description, codePostalBase, rayonKm, categorieIds;
+  try {
+    prenom = validateString(formData.get('prenom'), 'Prénom', 2, 50)
+    nom = validateString(formData.get('nom'), 'Nom', 2, 50)
+    telephone = formData.get('telephone') ? validateString(formData.get('telephone'), 'Téléphone', 10, 15) : null
+    nomEntreprise = validateString(formData.get('nom_entreprise'), 'Nom entreprise', 2, 100)
+    siret = validateSiret(formData.get('siret'))
+    description = formData.get('description') ? validateString(formData.get('description'), 'Description', 2) : ''
+    codePostalBase = validateCodePostal(formData.get('code_postal_base'))
+    rayonKm = validateInt(formData.get('rayon_km'), 'Rayon', 1, 200)
+    categorieIds = formData.getAll('categorie_ids').map(id => validateInt(id, 'Catégorie'))
+    if (categorieIds.length === 0) throw new Error("Veuillez sélectionner au moins un métier.")
+  } catch (e) {
+    return { error: (e as Error).message }
+  }
 
   // 1. Update Profile
   const { error: profileError } = await supabase

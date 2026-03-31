@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { validateString, validateCodePostal } from '@/lib/utils/validation'
 
 export async function updateParticulierProfile(formData: FormData) {
   const supabase = await createClient()
@@ -9,13 +10,17 @@ export async function updateParticulierProfile(formData: FormData) {
 
   if (!user) return { error: 'Non authentifié' }
 
-  const prenom = formData.get('prenom') as string
-  const nom = formData.get('nom') as string
-  const telephone = formData.get('telephone') as string
-
-  const adresse = formData.get('adresse') as string
-  const codePostal = formData.get('code_postal') as string
-  const ville = formData.get('ville') as string
+  let prenom, nom, telephone, adresse, codePostal, ville;
+  try {
+    prenom = validateString(formData.get('prenom'), 'Prénom', 2, 50)
+    nom = validateString(formData.get('nom'), 'Nom', 2, 50)
+    telephone = formData.get('telephone') ? validateString(formData.get('telephone'), 'Téléphone', 10, 15) : null
+    adresse = formData.get('adresse') ? validateString(formData.get('adresse'), 'Adresse', 2) : ''
+    codePostal = formData.get('code_postal') ? validateCodePostal(formData.get('code_postal')) : ''
+    ville = formData.get('ville') ? validateString(formData.get('ville'), 'Ville', 2) : ''
+  } catch (e) {
+    return { error: (e as Error).message }
+  }
 
   // 1. Update Profile
   const { error: profileError } = await supabase
