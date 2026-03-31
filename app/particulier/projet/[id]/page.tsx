@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import StatusBadge from '@/components/ui/StatusBadge'
 import ReponseActions from '@/components/projects/ReponseActions'
+import ProjectStatusActions from '@/components/projects/ProjectStatusActions'
 
 export default async function ProjetDetailPage({
   params,
@@ -84,6 +85,8 @@ export default async function ProjetDetailPage({
           </span>
           <span>Publié le {formattedDate}</span>
         </div>
+
+        <ProjectStatusActions projetId={projet.id} currentStatut={projet.statut} />
       </div>
 
       {/* Responses */}
