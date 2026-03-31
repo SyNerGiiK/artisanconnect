@@ -30,8 +30,8 @@ export async function signUp(formData: FormData) {
     return { error: error.message }
   }
 
-  // After signup, redirect to onboarding based on role
-  redirect(role === 'artisan' ? '/artisan/onboarding' : '/particulier/onboarding')
+  // Ne plus rediriger directement, forcer la confirmation email
+  return { success: true }
 }
 
 export async function signIn(formData: FormData) {

@@ -255,10 +255,10 @@ L'algorithme pour déterminer si l'artisan a déjà répondu est O(n²) : boucle
 
 ### Sprint 1 — Sécurité (avant mise en prod)
 1. [x] Validation serveur sur TOUS les `actions.ts`
-2. ⬜ Activer confirmation email dans Supabase
+2. [x] Activer confirmation email dans Supabase
 3. [x] Corriger open redirect dans `/auth/callback`
 4. [x] Améliorer la suppression RGPD (mot de passe requis)
-5. ⬜ Transaction pour les catégories artisan
+5. [x] Transaction pour les catégories artisan
 
 ### Sprint 2 — Performance
 6. ⬜ Résoudre le N+1 dans les conversations (vue SQL)
