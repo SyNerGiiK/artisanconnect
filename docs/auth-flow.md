@@ -78,6 +78,27 @@ Email de vérification → /auth/callback?code=xxx
     │
     └── exchangeCodeForSession(code)
         │
-        ├── Succès → redirect vers /
-        └── Erreur → redirect vers /connexion?error=auth
+    ├── Succès → redirect vers / (ou redirectParams si spécifié)
+    └── Erreur → redirect vers /connexion?error=auth
+
+## Réinitialisation de mot de passe (Phase 7.5)
+
+```text
+Utilisateur → /mot-de-passe-oublie
+    │
+    ├── Saisie : email
+    ├── Server Action sendResetPasswordEmail()
+    │   └── supabase.auth.resetPasswordForEmail(email, { redirectTo: '.../auth/callback?next=/nouveau-mot-de-passe' })
+    │
+    └── Email de réinitialisation reçu
+        │
+        └── Clic sur le lien → /auth/callback?next=/nouveau-mot-de-passe
+            │
+            └── Redirection → /nouveau-mot-de-passe
+                │
+                ├── Saisie : nouveau mot de passe
+                └── Server Action updatePassword()
+                    ├── supabase.auth.updateUser({ password })
+                    └── Redirect → Espace Utilisateur (Dashboard/Feed)
 ```
+

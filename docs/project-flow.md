@@ -38,6 +38,11 @@
     │   ├── Message initial de la réponse
     │   └── Statut de la réponse (en_attente / acceptee / refusee)
     │
+    ├── Actions sur le projet lui-même :
+    │   ├── [J'ai trouvé mon artisan] → Server Action updateProjectStatus('en_cours')
+    │   └── [Annuler la demande] → Server Action updateProjectStatus('annule')
+    │   (Ces actions retirent l'annonce du Feed Artisan)
+    │
     └── Actions sur chaque réponse en_attente :
         ├── [Accepter] → Server Action updateReponseStatus('acceptee')
         │       └── Trigger SQL crée automatiquement une `conversation`

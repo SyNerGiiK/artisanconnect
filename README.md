@@ -164,4 +164,8 @@ docs/                                # Documentation technique
 - [x] **Phase 2** — Auth & Profils (inscription, connexion, onboarding)
 - [x] **Phase 3** — Flux principal (dépôt de projet, feed, réponses)
 - [x] **Phase 4** — Messagerie temps réel
-- [ ] **Phase 5** — Pages publiques SEO
+- [x] **Phase 5** — Pages publiques SEO
+- [x] **Phase 6** — Profils & RGPD
+- [x] **Phase 7** — Polissage & Dashboard Expert
+- [x] **Phase 7.5** — MVP Trous fonctionnels (Clôture projet, MDP Oublié)
+- [ ] **Phase 8** — Monétisation (Stripe Stripe Billing)
