@@ -240,7 +240,15 @@ export type Database = {
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      update_artisan_categories: {
+        Args: {
+          p_artisan_id: string
+          p_categorie_ids: number[]
+        }
+        Returns: undefined
+      }
+    }
     Enums: Record<string, never>
   }
 }

@@ -9,13 +9,20 @@ import { redirect } from 'next/navigation'
  * L'API Admin de Supabase doit être utilisée pour supprimer dans auth.users.
  * La suppression s'occupera d'effacer les profils, les projets, et les messages via ON DELETE CASCADE.
  */
-export async function deleteUserAccount() {
+export async function deleteUserAccount(password: string) {
   const supabaseServer = await createServerClient()
   const { data: { user } } = await supabaseServer.auth.getUser()
 
   if (!user) {
     return { error: 'Non authentifié' }
   }
+
+  // Vérifier le mot de passe avant suppression
+  const { error: authError } = await supabaseServer.auth.signInWithPassword({
+    email: user.email!,
+    password,
+  })
+  if (authError) return { error: 'Mot de passe incorrect' }
 
   // Utiliser le Service Role Key pour contourner RLS et interagir avec l'Auth Admin
   const supabaseAdmin = createClient(

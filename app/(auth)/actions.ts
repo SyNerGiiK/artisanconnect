@@ -2,15 +2,21 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { validateEmail, validatePassword, validateString, validateEnum } from '@/lib/utils/validation'
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient()
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const role = formData.get('role') as 'particulier' | 'artisan'
-  const prenom = formData.get('prenom') as string
-  const nom = formData.get('nom') as string
+  let email, password, role, prenom, nom;
+  try {
+    email = validateEmail(formData.get('email'))
+    password = validatePassword(formData.get('password'))
+    role = validateEnum(formData.get('role'), ['particulier', 'artisan'], 'Rôle')
+    prenom = validateString(formData.get('prenom'), 'Prénom', 2, 50)
+    nom = validateString(formData.get('nom'), 'Nom', 2, 50)
+  } catch (e) {
+    return { error: (e as Error).message }
+  }
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -24,15 +30,20 @@ export async function signUp(formData: FormData) {
     return { error: error.message }
   }
 
-  // After signup, redirect to onboarding based on role
-  redirect(role === 'artisan' ? '/artisan/onboarding' : '/particulier/onboarding')
+  // Ne plus rediriger directement, forcer la confirmation email
+  return { success: true }
 }
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient()
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  let email, password;
+  try {
+    email = validateEmail(formData.get('email'))
+    password = validateString(formData.get('password'), 'Mot de passe')
+  } catch (e) {
+    return { error: (e as Error).message }
+  }
 
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
