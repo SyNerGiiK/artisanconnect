@@ -9,8 +9,7 @@ export async function proxy(request: NextRequest) {
   // 1. Refresh the session cookie (must run on every request)
   const { supabaseResponse, user } = await updateSession(request)
 
-  // 2. Build a Supabase client reusing the cookies from the refreshed response
-  //    to fetch the user's profile role without an extra round-trip.
+  // 2. Build a Supabase client to query the user's profile
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -37,7 +36,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // 4. Role-based access control for authenticated users
+  // 4. Role-based access control + onboarding redirect
   if (user && isProtected) {
     const { data: profile } = await supabase
       .from('profiles')
@@ -47,13 +46,40 @@ export async function proxy(request: NextRequest) {
 
     const role = profile?.role
 
-    // Wrong role — redirect to the correct dashboard
+    // Wrong role — redirect to the correct area
     if (pathname.startsWith('/particulier') && role !== 'particulier') {
       return NextResponse.redirect(new URL('/artisan/feed', request.url))
     }
-
     if (pathname.startsWith('/artisan') && role !== 'artisan') {
       return NextResponse.redirect(new URL('/particulier/dashboard', request.url))
+    }
+
+    // Onboarding check — skip if already on onboarding page
+    const isOnboardingPage = pathname.endsWith('/onboarding')
+    if (!isOnboardingPage) {
+      if (role === 'artisan') {
+        const { data: artisan } = await supabase
+          .from('artisans')
+          .select('id')
+          .eq('profil_id', user.id)
+          .single()
+
+        if (!artisan) {
+          return NextResponse.redirect(new URL('/artisan/onboarding', request.url))
+        }
+      }
+
+      if (role === 'particulier') {
+        const { data: particulier } = await supabase
+          .from('particuliers')
+          .select('id')
+          .eq('profil_id', user.id)
+          .single()
+
+        if (!particulier) {
+          return NextResponse.redirect(new URL('/particulier/onboarding', request.url))
+        }
+      }
     }
   }
 
@@ -80,13 +106,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Run on all paths EXCEPT:
-     * - _next/static  (Next.js static assets)
-     * - _next/image   (image optimisation endpoint)
-     * - favicon.ico   (favicon)
-     * - public folder files (images, fonts, etc.)
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
