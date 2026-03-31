@@ -42,3 +42,39 @@ export async function updateReponseStatus(
   revalidatePath(`/particulier/projet/${projetId}`)
   return { success: true }
 }
+
+export async function updateProjectStatus(
+  projetId: string,
+  newStatut: 'en_cours' | 'annule'
+) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'Non authentifié' }
+
+  // Verify the user owns this project via their particulier record
+  const { data: particulierRaw } = await supabase
+    .from('particuliers')
+    .select('id')
+    .eq('profil_id', user.id)
+    .single()
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const particulier = particulierRaw as any
+
+  if (!particulier) return { error: 'Profil particulier non trouvé' }
+
+  const { error } = await supabase
+    .from('projets')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .update({ statut: newStatut } as any)
+    .eq('id', projetId)
+    .eq('particulier_id', particulier.id)
+
+  if (error) return { error: error.message }
+
+  revalidatePath(`/particulier/projet/${projetId}`)
+  revalidatePath('/particulier/dashboard')
+  revalidatePath('/artisan/feed') // Clear it from artisans feed
+  return { success: true }
+}
