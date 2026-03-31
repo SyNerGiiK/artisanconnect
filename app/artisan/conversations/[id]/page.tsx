@@ -14,16 +14,17 @@ export default async function ArtisanChatPage({
 
   if (!user) redirect('/connexion')
 
-  const { data: artisan } = await supabase
+  const { data: artisanRaw } = await supabase
     .from('artisans')
     .select('id')
     .eq('profil_id', user.id)
     .single()
 
+  const artisan = artisanRaw as { id: string } | null
   if (!artisan) redirect('/artisan/onboarding')
 
   // Fetch conversation with project and participants
-  const { data: conversation } = await supabase
+  const { data: conversationRaw } = await supabase
     .from('conversations')
     .select(`
       id,
@@ -39,14 +40,18 @@ export default async function ArtisanChatPage({
     .eq('artisan_id', artisan.id)
     .single()
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const conversation = conversationRaw as any
   if (!conversation) notFound()
 
   // Get artisan profile info
-  const { data: artisanProfile } = await supabase
+  const { data: artisanProfileRaw } = await supabase
     .from('profiles')
     .select('id, prenom, nom')
     .eq('id', user.id)
     .single()
+
+  const artisanProfile = artisanProfileRaw as { id: string; prenom: string; nom: string } | null
 
   // Build participants map
   const particulierProfile = (conversation.particuliers as any)?.profiles

@@ -60,6 +60,7 @@ export type Database = {
         Row: {
           id: string
           profil_id: string
+          slug: string
           siret: string | null
           nom_entreprise: string
           description: string | null
@@ -71,6 +72,7 @@ export type Database = {
         Insert: {
           id?: string
           profil_id: string
+          slug?: string
           siret?: string | null
           nom_entreprise: string
           description?: string | null
@@ -82,6 +84,7 @@ export type Database = {
         Update: {
           id?: string
           profil_id?: string
+          slug?: string
           siret?: string | null
           nom_entreprise?: string
           description?: string | null
