@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Supabase generated types don't resolve joined queries (foreign key relations).
-  // This causes 'never' type errors on .from() calls with .select() joins.
-  // TODO: regenerate types with `npx supabase gen types` to fix properly.
+  // DETTE TECHNIQUE : Les types Supabase générés manuellement ne résolvent pas
+  // les FK relations dans .insert()/.select() joints. Fix définitif :
+  // npx supabase gen types typescript --project-id idtuoyvxtcwxibzjizug > lib/types/database.types.ts
+  // puis supprimer ce flag.
   typescript: {
     ignoreBuildErrors: true,
   },

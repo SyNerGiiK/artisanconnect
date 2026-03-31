@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import SignOutButton from '@/components/auth/SignOutButton'
 import ConversationCard from '@/components/chat/ConversationCard'
 import Link from 'next/link'
 
@@ -10,31 +9,32 @@ export default async function ParticulierConversationsPage() {
 
   if (!user) redirect('/connexion')
 
-  const { data: particulierRaw } = await supabase
+  const { data: particulier } = await supabase
     .from('particuliers')
     .select('id')
     .eq('profil_id', user.id)
     .single()
 
-  const particulier = particulierRaw as { id: string } | null
-  
   if (!particulier) redirect('/particulier/onboarding')
 
-  // Fetch conversations leveraging SQL View (N+1 fixed)
-  const { data: conversationDataRaw } = await supabase
-    .from('v_conversations_details')
+  // Single query using the SQL view — replaces the old N+1 pattern
+  const { data: viewRows } = await supabase
+    .from('v_conversations_details' as any)
     .select('*')
     .eq('particulier_id', particulier.id)
     .order('last_message_date', { ascending: false, nullsFirst: false })
 
-  const conversationData = (conversationDataRaw ?? []).map((conv: any) => ({
-    id: conv.conversation_id,
-    projetTitre: conv.projet_titre,
-    interlocuteurNom: `${conv.artisan_prenom} ${conv.artisan_nom}`,
-    interlocuteurEntreprise: conv.artisan_nom_entreprise,
-    lastMessage: conv.last_message,
-    lastMessageDate: conv.last_message_date ?? conv.conversation_created_at,
-    unreadCount: conv.unread_particulier_count,
+  const conversations = (viewRows as any[] | null) ?? []
+
+  // Map the view columns to the component props
+  const conversationData = conversations.map((row) => ({
+    id: row.conversation_id,
+    projetTitre: row.projet_titre ?? 'Projet',
+    interlocuteurNom: `${row.artisan_prenom} ${row.artisan_nom}`,
+    interlocuteurEntreprise: row.artisan_nom_entreprise ?? null,
+    lastMessage: row.last_message ?? null,
+    lastMessageDate: row.last_message_date ?? row.conversation_created_at,
+    unreadCount: Number(row.unread_particulier_count) ?? 0,
   }))
 
   return (
@@ -45,7 +45,7 @@ export default async function ParticulierConversationsPage() {
           Mes conversations
         </h1>
         <p className="mt-2 text-gray-600">
-          Echangez avec les artisans que vous avez acceptes.
+          Échangez avec les artisans que vous avez acceptés.
         </p>
       </div>
 
@@ -58,7 +58,7 @@ export default async function ParticulierConversationsPage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-3">Aucune conversation</h2>
           <p className="text-gray-500 mb-8 max-w-sm mx-auto">
-            Acceptez la reponse d&apos;un artisan sur l&apos;un de vos projets pour demarrer une discussion.
+            Acceptez la réponse d&apos;un artisan sur l&apos;un de vos projets pour démarrer une discussion.
           </p>
           <Link 
             href="/particulier/dashboard" 

@@ -38,6 +38,7 @@ export async function proxy(request: NextRequest) {
 
   // 4. Role-based access control + onboarding redirect
   if (user && isProtected) {
+    // Read role from JWT metadata (set at signUp) — zero DB hit
     const role = user.user_metadata?.role as 'particulier' | 'artisan' | undefined
 
     // Wrong role — redirect to the correct area
@@ -82,6 +83,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/connexion') || pathname.startsWith('/inscription')
 
   if (user && isAuthPage) {
+    // Read role from JWT metadata — zero DB hit
     const role = user.user_metadata?.role as 'particulier' | 'artisan' | undefined
     const destination =
       role === 'artisan' ? '/artisan/feed' : '/particulier/dashboard'

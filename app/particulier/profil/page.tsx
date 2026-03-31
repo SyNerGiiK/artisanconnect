@@ -38,7 +38,7 @@ export default async function ParticulierProfilePage() {
           Mon Profil
         </h1>
         <p className="mt-2 text-gray-600">
-          Gerez vos informations personnelles et vos preferences.
+          Gérez vos informations personnelles et vos préférences.
         </p>
       </div>
 

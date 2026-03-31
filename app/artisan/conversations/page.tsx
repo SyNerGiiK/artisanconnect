@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import SignOutButton from '@/components/auth/SignOutButton'
 import ConversationCard from '@/components/chat/ConversationCard'
 import Link from 'next/link'
 
@@ -19,20 +18,23 @@ export default async function ArtisanConversationsPage() {
   const artisan = artisanRaw as { id: string } | null
   if (!artisan) redirect('/artisan/onboarding')
 
-  // Fetch conversations leveraging SQL View (N+1 fixed)
-  const { data: conversationDataRaw } = await supabase
-    .from('v_conversations_details')
+  // Single query using the SQL view — replaces the old N+1 pattern
+  const { data: viewRows } = await supabase
+    .from('v_conversations_details' as any)
     .select('*')
     .eq('artisan_id', artisan.id)
     .order('last_message_date', { ascending: false, nullsFirst: false })
 
-  const conversationData = (conversationDataRaw ?? []).map((conv: any) => ({
-    id: conv.conversation_id,
-    projetTitre: conv.projet_titre,
-    interlocuteurNom: `${conv.particulier_prenom} ${conv.particulier_nom}`,
-    lastMessage: conv.last_message,
-    lastMessageDate: conv.last_message_date ?? conv.conversation_created_at,
-    unreadCount: conv.unread_artisan_count,
+  const conversations = (viewRows as any[] | null) ?? []
+
+  // Map the view columns to the component props
+  const conversationData = conversations.map((row) => ({
+    id: row.conversation_id,
+    projetTitre: row.projet_titre ?? 'Projet',
+    interlocuteurNom: `${row.particulier_prenom} ${row.particulier_nom}`,
+    lastMessage: row.last_message ?? null,
+    lastMessageDate: row.last_message_date ?? row.conversation_created_at,
+    unreadCount: Number(row.unread_artisan_count) ?? 0,
   }))
 
   return (
@@ -43,7 +45,7 @@ export default async function ArtisanConversationsPage() {
           Mes conversations
         </h1>
         <p className="mt-2 text-gray-600">
-          Echangez avec les particuliers qui ont accepte votre reponse.
+          Échangez avec les particuliers qui ont accepté votre réponse.
         </p>
       </div>
 
@@ -56,7 +58,7 @@ export default async function ArtisanConversationsPage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-3">Aucune conversation</h2>
           <p className="text-gray-500 mb-8 max-w-sm mx-auto">
-            Les conversations s&apos;ouvrent des qu&apos;un particulier accepte l&apos;un de vos devis.
+            Les conversations s&apos;ouvrent dès qu&apos;un particulier accepte l&apos;un de vos devis.
           </p>
           <Link 
             href="/artisan/feed" 

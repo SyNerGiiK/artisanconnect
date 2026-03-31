@@ -50,7 +50,7 @@ export default async function ParticulierDashboardPage() {
             Mes projets
           </h1>
           <p className="mt-2 text-gray-600">
-            Bonjour {profile?.prenom} — gerez vos projets de travaux ici.
+            Bonjour {profile?.prenom} — gérez vos projets de travaux ici.
           </p>
         </div>
         <Link
@@ -79,7 +79,7 @@ export default async function ParticulierDashboardPage() {
             href="/particulier/nouveau-projet"
             className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-[1.02]"
           >
-            Deposer mon premier projet
+            Déposer mon premier projet
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

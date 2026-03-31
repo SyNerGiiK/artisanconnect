@@ -68,6 +68,8 @@ export type Database = {
           rayon_km: number
           abonnement_actif: boolean
           abonnement_expire_le: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
         }
         Insert: {
           id?: string
@@ -80,6 +82,8 @@ export type Database = {
           rayon_km?: number
           abonnement_actif?: boolean
           abonnement_expire_le?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
         }
         Update: {
           id?: string
@@ -92,6 +96,8 @@ export type Database = {
           rayon_km?: number
           abonnement_actif?: boolean
           abonnement_expire_le?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
         }
       }
       categories_metiers: {
@@ -242,23 +248,18 @@ export type Database = {
     Views: {
       v_conversations_details: {
         Row: {
-          conversation_id: string
+          id: string
           projet_id: string
           artisan_id: string
           particulier_id: string
-          conversation_created_at: string
+          created_at: string
           projet_titre: string
-          particulier_profil_id: string
-          particulier_prenom: string
-          particulier_nom: string
-          artisan_profil_id: string
-          artisan_nom_entreprise: string
-          artisan_prenom: string
-          artisan_nom: string
-          last_message: string | null
+          interlocuteur_prenom: string
+          interlocuteur_nom: string
+          interlocuteur_entreprise: string | null
+          last_message_contenu: string | null
           last_message_date: string | null
-          unread_particulier_count: number
-          unread_artisan_count: number
+          unread_count: number
         }
       }
     }
