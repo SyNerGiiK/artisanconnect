@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn } from '../actions'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
-export default function ConnexionPage() {
+function ConnexionForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const searchParams = useSearchParams()
@@ -80,5 +80,13 @@ export default function ConnexionPage() {
         </Link>
       </p>
     </div>
+  )
+}
+
+export default function ConnexionPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
+      <ConnexionForm />
+    </Suspense>
   )
 }

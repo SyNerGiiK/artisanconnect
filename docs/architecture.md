@@ -90,3 +90,23 @@ Toutes les tables ont RLS activée. Principes :
 - **Composants React** : PascalCase (`SignOutButton.tsx`)
 - **Routes Next.js** : kebab-case (`nouveau-projet/page.tsx`)
 - **Types TypeScript** : PascalCase + suffixe (`ProjetStatut`, `UserRole`)
+
+## Pages publiques SEO (Phase 5)
+
+### Profil artisan public
+
+- Route : `/artisans/[slug]` — Server Component SSR
+- Slug généré automatiquement depuis `nom_entreprise` (trigger SQL)
+- `generateMetadata()` pour les meta OG/Twitter dynamiques
+- RLS : les artisans sont en lecture publique (`artisans_read_all`)
+
+### Sitemap & Robots
+
+- `app/sitemap.ts` — Sitemap dynamique incluant les pages artisans (query Supabase)
+- `app/robots.ts` — Autorise `/` et `/artisans/`, bloque les espaces privés
+
+### Métadonnées SEO
+
+- Layout racine : OG par défaut, Twitter card, `metadataBase`
+- Pages artisans : metadata dynamiques via `generateMetadata()`
+- Variable : `NEXT_PUBLIC_SITE_URL` pour les URLs absolues

@@ -10,16 +10,17 @@ export default async function ArtisanConversationsPage() {
 
   if (!user) redirect('/connexion')
 
-  const { data: artisan } = await supabase
+  const { data: artisanRaw } = await supabase
     .from('artisans')
     .select('id')
     .eq('profil_id', user.id)
     .single()
 
+  const artisan = artisanRaw as { id: string } | null
   if (!artisan) redirect('/artisan/onboarding')
 
   // Fetch conversations with project title and particulier info
-  const { data: conversations } = await supabase
+  const { data: conversationsRaw } = await supabase
     .from('conversations')
     .select(`
       id,
@@ -33,16 +34,21 @@ export default async function ArtisanConversationsPage() {
     .eq('artisan_id', artisan.id)
     .order('created_at', { ascending: false })
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const conversations = conversationsRaw as any[] | null
+
   // Fetch last message + unread count for each conversation
   const conversationData = await Promise.all(
     (conversations ?? []).map(async (conv) => {
-      const { data: lastMsg } = await supabase
+      const { data: lastMsgRaw } = await supabase
         .from('messages')
         .select('contenu, created_at')
         .eq('conversation_id', conv.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .single()
+
+      const lastMsg = lastMsgRaw as { contenu: string; created_at: string } | null
 
       const { count: unreadCount } = await supabase
         .from('messages')
