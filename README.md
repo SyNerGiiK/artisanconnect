@@ -65,6 +65,9 @@ app/
 │   ├── repondre/[id]/
 │   │   ├── page.tsx                # Formulaire de réponse à un chantier
 │   │   └── actions.ts              # Server action : submitReponse
+│   ├── conversations/
+│   │   ├── page.tsx                # Liste des conversations
+│   │   └── [id]/page.tsx           # Chat temps réel avec un particulier
 │   └── onboarding/
 │       ├── page.tsx                # Formulaire de complétion du profil artisan
 │       └── actions.ts              # Server action onboarding artisan
@@ -77,6 +80,9 @@ app/
 │   ├── projet/[id]/
 │   │   ├── page.tsx                # Détail d'un projet + réponses reçues
 │   │   └── actions.ts              # Server action : accepter/refuser réponse
+│   ├── conversations/
+│   │   ├── page.tsx                # Liste des conversations
+│   │   └── [id]/page.tsx           # Chat temps réel avec un artisan
 │   └── onboarding/
 │       ├── page.tsx                # Formulaire de complétion du profil
 │       └── actions.ts              # Server action onboarding particulier
@@ -87,6 +93,11 @@ app/
 components/
 ├── auth/
 │   └── SignOutButton.tsx            # Bouton de déconnexion
+├── chat/
+│   ├── ChatRoom.tsx                 # Composant chat temps réel (Supabase Realtime)
+│   ├── ChatInput.tsx                # Zone de saisie de message (Enter pour envoyer)
+│   ├── ConversationCard.tsx         # Carte de conversation (liste)
+│   └── MessageBubble.tsx            # Bulle de message (envoyé / reçu)
 ├── projects/
 │   ├── ProjectCard.tsx              # Carte de projet (dashboard particulier)
 │   └── ReponseActions.tsx           # Boutons accepter/refuser une réponse
@@ -131,16 +142,26 @@ docs/                                # Documentation technique
 3. Max 3 réponses par projet (trigger SQL + vérification serveur)
 4. Un artisan ne peut répondre qu'une fois par projet (contrainte UNIQUE)
 
+## Messagerie temps réel (Phase 4)
+
+1. Quand un particulier accepte une réponse → le trigger SQL crée automatiquement une `conversation`
+2. Les deux participants accèdent au chat via `/[role]/conversations/[id]`
+3. Les messages sont envoyés via Supabase (INSERT dans `messages`)
+4. Les nouveaux messages arrivent en temps réel via **Supabase Realtime** (postgres_changes)
+5. Les messages non lus sont marqués comme lus automatiquement à l'ouverture du chat
+6. Envoi optimiste : le message apparaît instantanément côté expéditeur
+
 ## Documentation
 
 - [`docs/architecture.md`](docs/architecture.md) — Architecture technique
 - [`docs/auth-flow.md`](docs/auth-flow.md) — Flux d'authentification détaillé
 - [`docs/project-flow.md`](docs/project-flow.md) — Flux principal (projets, réponses)
+- [`docs/messaging.md`](docs/messaging.md) — Messagerie temps réel
 
 ## Avancement
 
 - [x] **Phase 1** — Fondations (setup, migrations SQL, types, proxy)
 - [x] **Phase 2** — Auth & Profils (inscription, connexion, onboarding)
 - [x] **Phase 3** — Flux principal (dépôt de projet, feed, réponses)
-- [ ] **Phase 4** — Messagerie temps réel
+- [x] **Phase 4** — Messagerie temps réel
 - [ ] **Phase 5** — Pages publiques SEO
