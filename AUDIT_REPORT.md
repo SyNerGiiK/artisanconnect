@@ -261,11 +261,18 @@ L'algorithme pour déterminer si l'artisan a déjà répondu est O(n²) : boucle
 5. [x] Transaction pour les catégories artisan
 
 ### Sprint 2 — Performance
-6. ⬜ Résoudre le N+1 dans les conversations (vue SQL)
-7. ⬜ Paginer les messages du chat
-8. ⬜ Reconnexion Realtime
-9. ⬜ Optimiser le proxy (JWT custom claims)
-10. ⬜ Corriger le feed artisan (requête SQL au lieu de O(n²) JS)
+#### B. Sprint 2 : Performances Progressives (En Cours -> Terminé)
+1. [x] **Pagination & Filtres**  
+   - [x] Requête Feed : Gérer la condition d'exclusion des réponses (O(n²)) via requête SQL optimisée.
+2. [x] **Optimisation Realtime**
+   - [x] Remplacement du N+1 Query sur la liste des conversations par une Vue SQL.
+   - [x] Allégement du Middleware (Lecture JWT Metadata au lieu de hit Profil BDD).
+3. [x] **UX de sécurité**
+   - [x] Ajout de modales de confirmation bloquantes pour éviter les "misclicks" sur Accepter/Refuser.)
+7. [x] Paginer les messages du chat
+8. [x] Reconnexion Realtime
+9. [x] Optimiser le proxy (JWT custom claims)
+10. [x] Corriger le feed artisan (requête SQL au lieu de O(n²) JS)
 
 ### Sprint 3 — Qualité
 11. ⬜ Supprimer tous les `as any` (régénérer les types)

@@ -10,74 +10,32 @@ export default async function ParticulierConversationsPage() {
 
   if (!user) redirect('/connexion')
 
-  const { data: particulier } = await supabase
+  const { data: particulierRaw } = await supabase
     .from('particuliers')
     .select('id')
     .eq('profil_id', user.id)
     .single()
 
+  const particulier = particulierRaw as { id: string } | null
+  
   if (!particulier) redirect('/particulier/onboarding')
 
-  // Fetch conversations with project title and artisan info
-  const { data: conversationsRaw } = await supabase
-    .from('conversations')
-    .select(`
-      id,
-      created_at,
-      projets ( titre ),
-      artisans (
-        profil_id,
-        nom_entreprise,
-        profiles ( prenom, nom )
-      )
-    `)
+  // Fetch conversations leveraging SQL View (N+1 fixed)
+  const { data: conversationDataRaw } = await supabase
+    .from('v_conversations_details')
+    .select('*')
     .eq('particulier_id', particulier.id)
-    .order('created_at', { ascending: false })
+    .order('last_message_date', { ascending: false, nullsFirst: false })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const conversations = conversationsRaw as any[] | null
-
-  // Fetch last message + unread count for each conversation
-  const conversationData = await Promise.all(
-    (conversations ?? []).map(async (conv) => {
-      const { data: lastMsg } = await supabase
-        .from('messages')
-        .select('contenu, created_at')
-        .eq('conversation_id', conv.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-
-      const { count: unreadCount } = await supabase
-        .from('messages')
-        .select('id', { count: 'exact', head: true })
-        .eq('conversation_id', conv.id)
-        .eq('lu', false)
-        .neq('auteur_id', user.id)
-
-      const artisanData = conv.artisans as any
-      const artisanProfile = artisanData?.profiles
-      const interlocuteurNom = artisanProfile
-        ? `${artisanProfile.prenom} ${artisanProfile.nom}`
-        : 'Artisan'
-
-      return {
-        id: conv.id,
-        projetTitre: (conv.projets as any)?.titre ?? 'Projet',
-        interlocuteurNom,
-        interlocuteurEntreprise: artisanData?.nom_entreprise ?? null,
-        lastMessage: lastMsg?.contenu ?? null,
-        lastMessageDate: lastMsg?.created_at ?? conv.created_at,
-        unreadCount: unreadCount ?? 0,
-      }
-    })
-  )
-
-  // Sort by last message date
-  conversationData.sort((a, b) =>
-    new Date(b.lastMessageDate ?? 0).getTime() -
-    new Date(a.lastMessageDate ?? 0).getTime()
-  )
+  const conversationData = (conversationDataRaw ?? []).map((conv: any) => ({
+    id: conv.conversation_id,
+    projetTitre: conv.projet_titre,
+    interlocuteurNom: `${conv.artisan_prenom} ${conv.artisan_nom}`,
+    interlocuteurEntreprise: conv.artisan_nom_entreprise,
+    lastMessage: conv.last_message,
+    lastMessageDate: conv.last_message_date ?? conv.conversation_created_at,
+    unreadCount: conv.unread_particulier_count,
+  }))
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">

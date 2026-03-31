@@ -239,7 +239,29 @@ export type Database = {
         }
       }
     }
-    Views: Record<string, never>
+    Views: {
+      v_conversations_details: {
+        Row: {
+          conversation_id: string
+          projet_id: string
+          artisan_id: string
+          particulier_id: string
+          conversation_created_at: string
+          projet_titre: string
+          particulier_profil_id: string
+          particulier_prenom: string
+          particulier_nom: string
+          artisan_profil_id: string
+          artisan_nom_entreprise: string
+          artisan_prenom: string
+          artisan_nom: string
+          last_message: string | null
+          last_message_date: string | null
+          unread_particulier_count: number
+          unread_artisan_count: number
+        }
+      }
+    }
     Functions: {
       update_artisan_categories: {
         Args: {
