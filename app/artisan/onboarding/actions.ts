@@ -41,16 +41,12 @@ export async function completeArtisanOnboarding(formData: FormData) {
     return { error: artisanError.message }
   }
 
-  // Insert categories (many-to-many)
-  if (categorieIds.length > 0 && artisan) {
-    const categorieRows = categorieIds.map((categorieId) => ({
-      artisan_id: artisan.id,
-      categorie_id: categorieId,
-    }))
-
-    const { error: catError } = await supabase
-      .from('artisan_categories')
-      .insert(categorieRows)
+  // Insert categories (using atomic RPC)
+  if (artisan) {
+    const { error: catError } = await supabase.rpc('update_artisan_categories', {
+      p_artisan_id: artisan.id,
+      p_categorie_ids: categorieIds,
+    })
 
     if (catError) {
       return { error: catError.message }

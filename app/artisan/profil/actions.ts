@@ -54,18 +54,13 @@ export async function updateArtisanProfile(formData: FormData) {
 
   if (artisanError) return { error: artisanError.message }
 
-  // 3. Update Categories
+  // 3. Update Categories via RPC
   if (artisan) {
-    await supabase.from('artisan_categories').delete().eq('artisan_id', artisan.id)
-
-    if (categorieIds.length > 0) {
-      const categorieRows = categorieIds.map((cId) => ({
-        artisan_id: artisan.id,
-        categorie_id: cId,
-      }))
-      const { error: catError } = await supabase.from('artisan_categories').insert(categorieRows)
-      if (catError) return { error: catError.message }
-    }
+    const { error: catError } = await supabase.rpc('update_artisan_categories', {
+      p_artisan_id: artisan.id,
+      p_categorie_ids: categorieIds,
+    })
+    if (catError) return { error: catError.message }
   }
 
   revalidatePath('/artisan/profil')
