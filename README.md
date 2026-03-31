@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ArtisanConnect
 
-## Getting Started
+Plateforme SaaS de mise en relation entre particuliers et artisans du bâtiment.
+Abonnement fixe pour les pros, zéro commission, maximum 3 artisans par chantier.
 
-First, run the development server:
+## Stack technique
+
+| Couche | Technologie |
+|---|---|
+| Frontend | Next.js 16 (App Router) + TypeScript |
+| Styling | Tailwind CSS v4 |
+| Backend / BDD | Supabase (PostgreSQL + Auth + Realtime) |
+| Hébergement | Vercel |
+
+## Démarrage rapide
+
+### Prérequis
+
+- Node.js 18+
+- Un projet [Supabase](https://supabase.com) configuré
+
+### Installation
+
+```bash
+npm install
+```
+
+### Variables d'environnement
+
+Copier `.env.local.example` ou créer `.env.local` :
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://votre-projet.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=votre-anon-key
+SUPABASE_SERVICE_ROLE_KEY=votre-service-role-key
+```
+
+### Base de données
+
+Appliquer les migrations SQL dans l'éditeur SQL de Supabase **dans l'ordre** :
+
+1. `supabase/migrations/001_schema_initial.sql` — Tables + triggers
+2. `supabase/migrations/002_rls_policies.sql` — Row Level Security
+
+### Lancement
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Structure du projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+├── (auth)/
+│   ├── actions.ts              # Server actions : signUp, signIn, signOut
+│   ├── layout.tsx              # Layout centré pour les pages auth
+│   ├── connexion/page.tsx      # Page de connexion
+│   └── inscription/page.tsx    # Page d'inscription (choix du rôle)
+├── (artisan)/
+│   ├── layout.tsx              # Guard : rôle artisan requis
+│   ├── feed/page.tsx           # Liste des chantiers disponibles
+│   └── onboarding/
+│       ├── page.tsx            # Formulaire de complétion du profil artisan
+│       └── actions.ts          # Server action onboarding artisan
+├── (particulier)/
+│   ├── layout.tsx              # Guard : rôle particulier requis
+│   ├── dashboard/page.tsx      # Tableau de bord des projets
+│   └── onboarding/
+│       ├── page.tsx            # Formulaire de complétion du profil particulier
+│       └── actions.ts          # Server action onboarding particulier
+├── auth/callback/route.ts      # Callback Supabase (email verification)
+├── layout.tsx                  # Root layout
+└── page.tsx                    # Landing page
 
-## Learn More
+components/
+└── auth/
+    └── SignOutButton.tsx        # Bouton de déconnexion
 
-To learn more about Next.js, take a look at the following resources:
+lib/
+├── supabase/
+│   ├── client.ts               # Supabase Browser Client
+│   ├── server.ts               # Supabase Server Client (SSR)
+│   └── middleware.ts            # updateSession() pour le proxy
+└── types/
+    └── database.types.ts        # Types TypeScript du schéma DB
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+proxy.ts                         # Protection des routes + redirect onboarding
+supabase/migrations/             # Fichiers SQL de migration
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Flux d'authentification
 
-## Deploy on Vercel
+1. L'utilisateur s'inscrit sur `/inscription` en choisissant son rôle (artisan ou particulier)
+2. Supabase crée le user + le trigger insère automatiquement une ligne dans `profiles`
+3. L'utilisateur est redirigé vers la page d'onboarding de son rôle
+4. Après l'onboarding, accès au dashboard (particulier) ou au feed (artisan)
+5. Le proxy vérifie à chaque requête :
+   - Authentification (sinon → `/connexion`)
+   - Rôle correct (sinon → redirect vers l'espace du bon rôle)
+   - Onboarding complété (sinon → `/[role]/onboarding`)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Avancement
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [x] **Phase 1** — Fondations (setup, migrations SQL, types, proxy)
+- [x] **Phase 2** — Auth & Profils (inscription, connexion, onboarding)
+- [ ] **Phase 3** — Flux principal (dépôt de projet, feed, réponses)
+- [ ] **Phase 4** — Messagerie temps réel
+- [ ] **Phase 5** — Pages publiques SEO
