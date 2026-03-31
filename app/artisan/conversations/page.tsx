@@ -81,31 +81,27 @@ export default async function ArtisanConversationsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">Mes conversations</h1>
-          <p className="text-gray-600">
-            Échangez avec les particuliers qui ont accepté votre réponse.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/artisan/feed"
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-          >
-            Feed
-          </Link>
-          <SignOutButton />
-        </div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold">Mes conversations</h1>
+        <p className="text-gray-600">
+          Échangez avec les particuliers qui ont accepté votre réponse.
+        </p>
       </div>
 
       {conversationData.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-12 text-center text-gray-500">
-          <p className="mb-2">Aucune conversation pour le moment.</p>
-          <p className="text-sm">
-            Les conversations s&apos;ouvrent quand un particulier accepte votre
-            réponse.
+        <div className="rounded-xl border border-dashed border-gray-300 p-12 text-center bg-white shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 mb-4">
+             <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-semibold mb-2">Aucune conversation</h2>
+          <p className="text-gray-500 mb-6">
+            Les conversations s'ouvrent dès qu'un particulier accepte l'un de vos devis.
           </p>
+          <Link href="/artisan/feed" className="inline-block rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
+            Voir les chantiers disponibles
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">

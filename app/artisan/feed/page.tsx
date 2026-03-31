@@ -17,11 +17,14 @@ export default async function ArtisanFeedPage() {
     .single<{ prenom: string; nom: string }>()
 
   // Get artisan record + categories
-  const { data: artisan } = await supabase
+  const { data: artisanRaw } = await supabase
     .from('artisans')
     .select('id, code_postal_base, abonnement_actif, artisan_categories ( categorie_id )')
     .eq('profil_id', user.id)
     .single()
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const artisan = artisanRaw as any
 
   if (!artisan) redirect('/artisan/onboarding')
 
@@ -31,7 +34,7 @@ export default async function ArtisanFeedPage() {
     artisan.artisan_categories?.map((ac: { categorie_id: number }) => ac.categorie_id) ?? []
 
   // Fetch open projects — RLS handles zone + subscription filtering
-  const { data: projets } = await supabase
+  const { data: projetsRaw } = await supabase
     .from('projets')
     .select(`
       *,
@@ -41,6 +44,9 @@ export default async function ArtisanFeedPage() {
     .eq('statut', 'ouvert')
     .in('categorie_id', artisanCategorieIds.length > 0 ? artisanCategorieIds : [-1])
     .order('created_at', { ascending: false })
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const projets = projetsRaw as any[] | null
 
   // Check which projects this artisan already responded to
   const respondedProjectIds = new Set(
@@ -57,21 +63,11 @@ export default async function ArtisanFeedPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">Chantiers disponibles</h1>
-          <p className="text-gray-600">
-            Bonjour {profile?.prenom} — retrouvez ici les chantiers dans votre
-            zone.
-          </p>
-        </div>
-        <Link
-            href="/artisan/conversations"
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-          >
-            Messages
-          </Link>
-          <SignOutButton />
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold">Chantiers disponibles</h1>
+        <p className="text-gray-600">
+          Bonjour {profile?.prenom} — retrouvez ici les chantiers dans votre zone.
+        </p>
       </div>
 
       {!artisan.abonnement_actif && (
@@ -82,8 +78,16 @@ export default async function ArtisanFeedPage() {
       )}
 
       {!projets || projets.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-12 text-center text-gray-500">
-          Aucun chantier disponible dans votre zone pour le moment.
+        <div className="rounded-xl border border-dashed border-gray-300 p-12 text-center bg-white shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 mb-4">
+             <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-semibold mb-2">Aucun chantier disponible</h2>
+          <p className="text-gray-500">
+            Il n'y a pas encore de chantiers correspondant à vos critères dans votre zone d'intervention.
+          </p>
         </div>
       ) : (
         <div className="space-y-4">

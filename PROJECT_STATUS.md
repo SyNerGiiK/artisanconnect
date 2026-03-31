@@ -410,14 +410,24 @@ proxy.ts                         # Protection routes
    SUPABASE_SERVICE_ROLE_KEY=xxxx
    ```
 
-4. **Phase suivante** : Phase 5 — Pages publiques SEO
-   - Profil artisan `/artisans/[slug]` (SSR)
-   - Landing page `/`
-   - Sitemap + robots.txt
+4. **Phase suivante** :
 
----
+### ✅ Phase 5 : SEO & Pages publiques (MVP partiel)
+- Routage et génération dynamique des slug artisans
+- Page publique du profil artisan (`/artisans/[slug]`)
+- Sitemap et robots.txt
+- Design de la Landing page (Amélioration UI)
 
-## 📝 Derniers commits
+### ✅ Phase 6 : Gestion des Profils & RGPD
+- Interfaces `/artisan/profil` et `/particulier/profil` (mise à jour des informations)
+- Fonction de suppression de compte RGPD (via API Admin Supabase)
+- Navigation : Ajout d'une barre de navigation partagée dans les layouts
+
+### ✅ Phase 7 : Polissage & Dashboard Expert
+- Vue "Mes Devis" pour l'artisan (`/artisan/mes-reponses`)
+- Intégration d'Empty States stylisés pour les chantiers, Dashboard, et Conversations
+
+### 🔲 Phase 8 : Monétisation (Paiement Stripe / V2)
 
 | Hash | Message | PR |
 |---|---|---|
