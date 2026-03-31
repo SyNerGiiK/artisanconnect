@@ -18,6 +18,8 @@ export default function ArtisanProfileForm({ profile, artisan, allCategories, in
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   function toggleCategory(id: number) {
     setSelectedCategories((prev) =>
@@ -199,18 +201,39 @@ export default function ArtisanProfileForm({ profile, artisan, allCategories, in
         ) : (
           <div className="bg-red-50 p-4 rounded-lg border border-red-200">
             <p className="text-sm text-red-800 mb-3 font-medium">Êtes-vous absolument sûr de vouloir supprimer votre compte de la plateforme ? Cette action est immédiate et irréversible.</p>
+            
+            <div className="mb-4">
+              <label htmlFor="deletePassword" className="block text-sm font-medium text-red-800 mb-1">Confirmez votre mot de passe pour supprimer votre compte</label>
+              <input
+                type="password"
+                id="deletePassword"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                className="w-full rounded-md border border-red-300 px-3 py-2 text-sm focus:border-red-500"
+                placeholder="Mot de passe"
+              />
+              {deleteError && <p className="mt-1 text-sm text-red-600">{deleteError}</p>}
+            </div>
+
             <div className="flex gap-3">
               <button 
                 type="button" 
-                onClick={() => deleteUserAccount()}
-                className="text-sm bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-medium"
+                disabled={!deletePassword || loading}
+                onClick={async () => {
+                  setLoading(true)
+                  setDeleteError(null)
+                  const res = await deleteUserAccount(deletePassword)
+                  if (res?.error) setDeleteError(res.error)
+                  setLoading(false)
+                }}
+                className="text-sm bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-medium disabled:opacity-50"
               >
                 Oui, supprimer définitivement
               </button>
               <button 
                 type="button" 
-                onClick={() => setDeleteConfirm(false)}
-                className="text-sm bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 font-medium"
+                onClick={() => { setDeleteConfirm(false); setDeletePassword(''); setDeleteError(null); }}
+                className="text-sm bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 font-medium disabled:opacity-50"
               >
                 Annuler
               </button>

@@ -8,6 +8,7 @@ export default function InscriptionPage() {
   const [role, setRole] = useState<'particulier' | 'artisan' | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   async function handleSubmit(formData: FormData) {
     if (!role) return
@@ -17,8 +18,27 @@ export default function InscriptionPage() {
     const result = await signUp(formData)
     if (result?.error) {
       setError(result.error)
-      setLoading(false)
+    } else if (result?.success) {
+      setIsSuccess(true)
     }
+    setLoading(false)
+  }
+
+  if (isSuccess) {
+    return (
+      <div className="text-center p-8 bg-green-50 rounded-xl border border-green-200">
+        <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+          ✓
+        </div>
+        <h2 className="text-2xl font-bold text-green-800 mb-2">Vérifiez votre boîte mail</h2>
+        <p className="text-green-700 mb-6">
+          Nous vous avons envoyé un email contenant un lien de confirmation. Veuillez cliquer sur ce lien pour activer votre compte.
+        </p>
+        <Link href="/connexion" className="inline-block bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium">
+          Aller à la connexion
+        </Link>
+      </div>
+    )
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { validateString, validateSiret, validateCodePostal, validateInt } from '@/lib/utils/validation'
 
 export async function completeArtisanOnboarding(formData: FormData) {
   const supabase = await createClient()
@@ -9,12 +10,18 @@ export async function completeArtisanOnboarding(formData: FormData) {
 
   if (!user) redirect('/connexion')
 
-  const nomEntreprise = formData.get('nom_entreprise') as string
-  const siret = formData.get('siret') as string
-  const description = formData.get('description') as string
-  const codePostalBase = formData.get('code_postal_base') as string
-  const rayonKm = parseInt(formData.get('rayon_km') as string, 10)
-  const categorieIds = formData.getAll('categorie_ids').map(Number)
+  let nomEntreprise, siret, description, codePostalBase, rayonKm, categorieIds;
+  try {
+    nomEntreprise = validateString(formData.get('nom_entreprise'), 'Nom entreprise', 2, 100)
+    siret = validateSiret(formData.get('siret'))
+    description = formData.get('description') ? validateString(formData.get('description'), 'Description', 2) : ''
+    codePostalBase = validateCodePostal(formData.get('code_postal_base'))
+    rayonKm = validateInt(formData.get('rayon_km'), 'Rayon', 1, 200)
+    categorieIds = formData.getAll('categorie_ids').map(id => validateInt(id, 'Catégorie'))
+    if (categorieIds.length === 0) throw new Error("Veuillez sélectionner au moins un métier.")
+  } catch (e) {
+    return { error: (e as Error).message }
+  }
 
   // Insert artisan profile
   const { data: artisan, error: artisanError } = await supabase
@@ -34,16 +41,12 @@ export async function completeArtisanOnboarding(formData: FormData) {
     return { error: artisanError.message }
   }
 
-  // Insert categories (many-to-many)
-  if (categorieIds.length > 0 && artisan) {
-    const categorieRows = categorieIds.map((categorieId) => ({
-      artisan_id: artisan.id,
-      categorie_id: categorieId,
-    }))
-
-    const { error: catError } = await supabase
-      .from('artisan_categories')
-      .insert(categorieRows)
+  // Insert categories (using atomic RPC)
+  if (artisan) {
+    const { error: catError } = await supabase.rpc('update_artisan_categories', {
+      p_artisan_id: artisan.id,
+      p_categorie_ids: categorieIds,
+    })
 
     if (catError) {
       return { error: catError.message }
