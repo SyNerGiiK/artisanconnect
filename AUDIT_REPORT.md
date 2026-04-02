@@ -94,7 +94,7 @@ Pour chaque conversation, 2 requêtes sont exécutées (dernier message + compte
 
 ---
 
-### 7. Chat — pas de pagination des messages
+### 7. ✅ Chat — pas de pagination des messages (CORRIGÉ)
 
 **Fichier** : `components/chat/ChatRoom.tsx`
 
@@ -104,7 +104,7 @@ Tous les messages d'une conversation sont chargés d'un coup. Après 1000 messag
 
 ---
 
-### 8. Chat — pas de reconnexion Realtime
+### 8. ✅ Chat — pas de reconnexion Realtime (CORRIGÉ)
 
 **Fichier** : `components/chat/ChatRoom.tsx`
 

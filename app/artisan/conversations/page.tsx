@@ -34,7 +34,7 @@ export default async function ArtisanConversationsPage() {
     interlocuteurNom: `${row.particulier_prenom} ${row.particulier_nom}`,
     lastMessage: row.last_message ?? null,
     lastMessageDate: row.last_message_date ?? row.conversation_created_at,
-    unreadCount: Number(row.unread_artisan_count) ?? 0,
+    unreadCount: Number(row.unread_artisan_count) || 0,
   }))
 
   return (
