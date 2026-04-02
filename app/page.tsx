@@ -474,19 +474,19 @@ export default async function HomePage() {
               <h4 className="font-semibold text-gray-900">Légal</h4>
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  <Link href="/cgu" className="text-gray-600 hover:text-blue-600 transition-colors">
                     CGU
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  <Link href="/cgv" className="text-gray-600 hover:text-blue-600 transition-colors">
                     CGV
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  <Link href="/mentions-legales" className="text-gray-600 hover:text-blue-600 transition-colors">
                     Mentions légales
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
