@@ -45,14 +45,19 @@ export async function signIn(formData: FormData) {
     return { error: (e as Error).message }
   }
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-  if (error) {
-    return { error: error.message }
+  if (error || !data?.user) {
+    return { error: error?.message || 'Erreur de connexion' }
   }
 
-  // Proxy will handle role-based redirect
-  redirect('/')
+  // Redirection explicite selon le rôle au lieu de rediriger vers '/'
+  const role = data.user.user_metadata?.role
+  if (role === 'artisan') {
+    redirect('/artisan/feed')
+  } else {
+    redirect('/particulier/dashboard')
+  }
 }
 
 export async function signOut() {
