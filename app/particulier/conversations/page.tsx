@@ -34,7 +34,7 @@ export default async function ParticulierConversationsPage() {
     interlocuteurEntreprise: row.artisan_nom_entreprise ?? null,
     lastMessage: row.last_message ?? null,
     lastMessageDate: row.last_message_date ?? row.conversation_created_at,
-    unreadCount: Number(row.unread_particulier_count) ?? 0,
+    unreadCount: Number(row.unread_particulier_count) || 0,
   }))
 
   return (
