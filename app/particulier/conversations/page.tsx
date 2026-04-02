@@ -9,12 +9,13 @@ export default async function ParticulierConversationsPage() {
 
   if (!user) redirect('/connexion')
 
-  const { data: particulier } = await supabase
+  const { data: particulierRaw } = await supabase
     .from('particuliers')
     .select('id')
     .eq('profil_id', user.id)
     .single()
 
+  const particulier = particulierRaw as { id: string } | null
   if (!particulier) redirect('/particulier/onboarding')
 
   // Single query using the SQL view — replaces the old N+1 pattern

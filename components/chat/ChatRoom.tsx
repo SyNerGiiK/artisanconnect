@@ -50,7 +50,7 @@ export default function ChatRoom({
   useEffect(() => {
     async function fetchMessages() {
       const { data, count } = await supabase
-        .from('messages')
+        .from('messages' as any)
         .select('*', { count: 'exact' })
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: false })
@@ -77,7 +77,7 @@ export default function ChatRoom({
     const prevScrollHeight = scrollContainerRef.current?.scrollHeight || 0
 
     const { data } = await supabase
-      .from('messages')
+      .from('messages' as any)
       .select('*')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: false })
@@ -134,7 +134,7 @@ export default function ChatRoom({
         if (status === 'SUBSCRIBED') {
           // Reconnexion: rattraper les messages manqués
           const { data: missedMessages } = await supabase
-            .from('messages')
+            .from('messages' as any)
             .select('*')
             .eq('conversation_id', conversationId)
             .gt('created_at', lastSeenAt)
@@ -165,7 +165,7 @@ export default function ChatRoom({
 
     if (unreadIds.length > 0) {
       supabase
-        .from('messages')
+        .from('messages' as any)
         .update({ lu: true })
         .in('id', unreadIds)
         .then()
@@ -193,7 +193,8 @@ export default function ChatRoom({
     }
     setMessages((prev) => [...prev, optimisticMessage])
 
-    const { error } = await supabase.from('messages').insert({
+    // @ts-ignore
+    const { error } = await supabase.from('messages' as any).insert({
       conversation_id: conversationId,
       auteur_id: currentUserId,
       contenu,
