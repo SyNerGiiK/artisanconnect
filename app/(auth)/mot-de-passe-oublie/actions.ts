@@ -9,9 +9,8 @@ export async function sendResetPasswordEmail(prevState: any, formData: FormData)
 
   const supabase = await createClient()
   
-  // Automatically determine origin (for dev vs Vercel preview/prod)
-  const headersList = await headers()
-  const origin = headersList.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  // Use env var to prevent open redirect via forged Origin header
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/callback?next=/nouveau-mot-de-passe`,
