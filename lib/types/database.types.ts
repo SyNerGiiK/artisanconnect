@@ -1,10 +1,23 @@
 /**
- * Types TypeScript générés manuellement à partir du schéma SQL.
- * À régénérer via CLI après connexion au projet Supabase :
+ * Types TypeScript manuels alignés sur le schéma Supabase.
+ *
+ * Structure conforme à celle produite par `supabase gen types typescript`.
+ * À régénérer via CLI quand possible :
  *   npx supabase gen types typescript --project-id YOUR_PROJECT_ID > lib/types/database.types.ts
  */
 
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
 export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: '12'
+  }
   public: {
     Tables: {
       profiles: {
@@ -32,6 +45,7 @@ export type Database = {
           telephone?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       particuliers: {
         Row: {
@@ -55,6 +69,15 @@ export type Database = {
           code_postal?: string | null
           ville?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: 'particuliers_profil_id_fkey'
+            columns: ['profil_id']
+            isOneToOne: true
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       artisans: {
         Row: {
@@ -99,6 +122,15 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: 'artisans_profil_id_fkey'
+            columns: ['profil_id']
+            isOneToOne: true
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       categories_metiers: {
         Row: {
@@ -116,6 +148,7 @@ export type Database = {
           slug?: string
           libelle?: string
         }
+        Relationships: []
       }
       artisan_categories: {
         Row: {
@@ -130,6 +163,22 @@ export type Database = {
           artisan_id?: string
           categorie_id?: number
         }
+        Relationships: [
+          {
+            foreignKeyName: 'artisan_categories_artisan_id_fkey'
+            columns: ['artisan_id']
+            isOneToOne: false
+            referencedRelation: 'artisans'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'artisan_categories_categorie_id_fkey'
+            columns: ['categorie_id']
+            isOneToOne: false
+            referencedRelation: 'categories_metiers'
+            referencedColumns: ['id']
+          }
+        ]
       }
       projets: {
         Row: {
@@ -168,6 +217,22 @@ export type Database = {
           statut?: 'ouvert' | 'en_cours' | 'termine' | 'annule'
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'projets_particulier_id_fkey'
+            columns: ['particulier_id']
+            isOneToOne: false
+            referencedRelation: 'particuliers'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'projets_categorie_id_fkey'
+            columns: ['categorie_id']
+            isOneToOne: false
+            referencedRelation: 'categories_metiers'
+            referencedColumns: ['id']
+          }
+        ]
       }
       reponses: {
         Row: {
@@ -194,6 +259,22 @@ export type Database = {
           statut?: 'en_attente' | 'acceptee' | 'refusee'
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'reponses_projet_id_fkey'
+            columns: ['projet_id']
+            isOneToOne: false
+            referencedRelation: 'projets'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reponses_artisan_id_fkey'
+            columns: ['artisan_id']
+            isOneToOne: false
+            referencedRelation: 'artisans'
+            referencedColumns: ['id']
+          }
+        ]
       }
       conversations: {
         Row: {
@@ -217,6 +298,29 @@ export type Database = {
           particulier_id?: string
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'conversations_projet_id_fkey'
+            columns: ['projet_id']
+            isOneToOne: false
+            referencedRelation: 'projets'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'conversations_artisan_id_fkey'
+            columns: ['artisan_id']
+            isOneToOne: false
+            referencedRelation: 'artisans'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'conversations_particulier_id_fkey'
+            columns: ['particulier_id']
+            isOneToOne: false
+            referencedRelation: 'particuliers'
+            referencedColumns: ['id']
+          }
+        ]
       }
       messages: {
         Row: {
@@ -243,24 +347,69 @@ export type Database = {
           lu?: boolean
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'messages_conversation_id_fkey'
+            columns: ['conversation_id']
+            isOneToOne: false
+            referencedRelation: 'conversations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'messages_auteur_id_fkey'
+            columns: ['auteur_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
     }
     Views: {
       v_conversations_details: {
         Row: {
-          id: string
+          conversation_id: string
           projet_id: string
           artisan_id: string
           particulier_id: string
-          created_at: string
+          conversation_created_at: string
           projet_titre: string
-          interlocuteur_prenom: string
-          interlocuteur_nom: string
-          interlocuteur_entreprise: string | null
-          last_message_contenu: string | null
+          particulier_profil_id: string
+          particulier_prenom: string
+          particulier_nom: string
+          artisan_profil_id: string
+          artisan_nom_entreprise: string
+          artisan_prenom: string
+          artisan_nom: string
+          last_message: string | null
           last_message_date: string | null
-          unread_count: number
+          unread_particulier_count: number
+          unread_artisan_count: number
         }
+        Relationships: []
+      }
+      v_artisans_public: {
+        Row: {
+          id: string
+          profil_id: string
+          slug: string
+          nom_entreprise: string
+          description: string | null
+          siret: string | null
+          code_postal_base: string
+          rayon_km: number
+          created_at: string
+          updated_at: string
+        }
+        Relationships: []
+      }
+      v_profiles_public: {
+        Row: {
+          id: string
+          prenom: string
+          nom: string
+        }
+        Relationships: []
       }
     }
     Functions: {
@@ -273,6 +422,7 @@ export type Database = {
       }
     }
     Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }
 
