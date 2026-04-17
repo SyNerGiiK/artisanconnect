@@ -38,6 +38,7 @@ yarn-error.log*
 
 # Claude Code internal files
 .claude/
+.continue/
 
 # typescript
 *.tsbuildinfo
