@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic artisan profile pages
   const supabase = await createClient()
   const { data: artisans } = await supabase
-    .from('artisans')
+    .from('v_artisans_public' as any)
     .select('slug')
     .not('slug', 'is', null)
 

@@ -29,27 +29,35 @@ interface ArtisanProfile {
 async function getArtisanBySlug(slug: string): Promise<ArtisanProfile | null> {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('artisans')
-    .select(`
-      id,
-      slug,
-      nom_entreprise,
-      description,
-      siret,
-      code_postal_base,
-      rayon_km,
-      profil_id,
-      profiles!inner (prenom, nom),
-      artisan_categories (
-        categories_metiers (slug, libelle)
-      )
-    `)
+  const { data: baseArtisanRaw, error: artisanError } = await supabase
+    .from('v_artisans_public' as any)
+    .select('*')
     .eq('slug', slug)
     .single()
 
-  if (error || !data) return null
-  return data as unknown as ArtisanProfile
+  const baseArtisan = baseArtisanRaw as any
+
+  if (artisanError || !baseArtisan) return null
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('prenom, nom')
+    .eq('id', baseArtisan.profil_id)
+    .single()
+
+  const { data: rawCategories } = await supabase
+    .from('artisan_categories')
+    .select('categories_metiers(slug, libelle)')
+    .eq('artisan_id', baseArtisan.id)
+
+  const artisanProfiles = profile ? profile : { prenom: 'Artisan', nom: '' }
+  const artisanCategories = rawCategories ? rawCategories : []
+
+  return {
+    ...baseArtisan,
+    profiles: artisanProfiles,
+    artisan_categories: artisanCategories,
+  } as ArtisanProfile
 }
 
 // -- Metadata (SEO) ----------------------------------------------------------
