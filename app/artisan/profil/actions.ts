@@ -30,8 +30,8 @@ export async function updateArtisanProfile(formData: FormData) {
   const { error: profileError } = await supabase
     .from('profiles')
     .update({
-      prenom: prenom || null,
-      nom: nom || null,
+      prenom,
+      nom,
       telephone: telephone || null
     })
     .eq('id', user.id)
