@@ -24,29 +24,32 @@ export default async function ProjetDetailPage({
 
   if (!particulier) redirect('/particulier/onboarding')
 
-  // Fetch the project with its category
-  const { data: projet } = await supabase
-    .from('projets')
-    .select('*, categories_metiers ( libelle )')
-    .eq('id', id)
-    .eq('particulier_id', particulier.id)
-    .single()
+  // Parallel: project details + responses with artisan info
+  const [projetRes, reponsesRes] = await Promise.all([
+    supabase
+      .from('projets')
+      .select('*, categories_metiers ( libelle )')
+      .eq('id', id)
+      .eq('particulier_id', particulier.id)
+      .single(),
+    supabase
+      .from('reponses')
+      .select(`
+        *,
+        artisans (
+          nom_entreprise,
+          description,
+          code_postal_base
+        )
+      `)
+      .eq('projet_id', id)
+      .order('created_at', { ascending: true }),
+  ])
+
+  const projet = projetRes.data
+  const reponses = reponsesRes.data
 
   if (!projet) notFound()
-
-  // Fetch responses with artisan info
-  const { data: reponses } = await supabase
-    .from('reponses')
-    .select(`
-      *,
-      artisans (
-        nom_entreprise,
-        description,
-        code_postal_base
-      )
-    `)
-    .eq('projet_id', id)
-    .order('created_at', { ascending: true })
 
   const formattedDate = new Date(projet.created_at).toLocaleDateString('fr-FR', {
     day: 'numeric',

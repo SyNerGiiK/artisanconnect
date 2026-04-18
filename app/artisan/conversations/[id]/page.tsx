@@ -14,14 +14,16 @@ export default async function ArtisanChatPage({
 
   if (!user) redirect('/connexion')
 
-  const { data: artisanRaw } = await supabase
-    .from('artisans')
-    .select('id')
-    .eq('profil_id', user.id)
-    .single()
+  // Parallel: artisan record + current user's profile
+  const [artisanRes, artisanProfileRes] = await Promise.all([
+    supabase.from('artisans').select('id').eq('profil_id', user.id).single(),
+    supabase.from('profiles').select('id, prenom, nom').eq('id', user.id).single(),
+  ])
 
-  const artisan = artisanRaw as { id: string } | null
+  const artisan = artisanRes.data as { id: string } | null
   if (!artisan) redirect('/artisan/onboarding')
+
+  const artisanProfile = artisanProfileRes.data as { id: string; prenom: string; nom: string } | null
 
   // Fetch conversation with project and participants
   const { data: conversationRaw } = await supabase
@@ -43,15 +45,6 @@ export default async function ArtisanChatPage({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const conversation = conversationRaw as any
   if (!conversation) notFound()
-
-  // Get artisan profile info
-  const { data: artisanProfileRaw } = await supabase
-    .from('profiles')
-    .select('id, prenom, nom')
-    .eq('id', user.id)
-    .single()
-
-  const artisanProfile = artisanProfileRaw as { id: string; prenom: string; nom: string } | null
 
   // Build participants map
   const particulierProfile = (conversation.particuliers as any)?.profiles

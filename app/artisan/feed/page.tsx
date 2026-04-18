@@ -11,21 +11,23 @@ export default async function ArtisanFeedPage() {
 
   if (!user) redirect('/connexion')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('prenom, nom')
-    .eq('id', user.id)
-    .single<{ prenom: string; nom: string }>()
+  // Parallel: current user's profile + artisan record with categories
+  const [profileRes, artisanRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('prenom, nom')
+      .eq('id', user.id)
+      .single<{ prenom: string; nom: string }>(),
+    supabase
+      .from('artisans')
+      .select('id, code_postal_base, abonnement_actif, artisan_categories ( categorie_id )')
+      .eq('profil_id', user.id)
+      .single(),
+  ])
 
-  // Get artisan record + categories
-  const { data: artisanRaw } = await supabase
-    .from('artisans')
-    .select('id, code_postal_base, abonnement_actif, artisan_categories ( categorie_id )')
-    .eq('profil_id', user.id)
-    .single()
-
+  const profile = profileRes.data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const artisan = artisanRaw as any
+  const artisan = artisanRes.data as any
 
   if (!artisan) redirect('/artisan/onboarding')
 
@@ -34,29 +36,31 @@ export default async function ArtisanFeedPage() {
   const artisanCategorieIds =
     artisan.artisan_categories?.map((ac: { categorie_id: number }) => ac.categorie_id) ?? []
 
-  // Fetch open projects — RLS handles zone + subscription filtering
-  const { data: projetsRaw } = await supabase
-    .from('projets')
-    .select(`
-      *,
-      categories_metiers ( libelle ),
-      reponses ( id, artisan_id )
-    `)
-    .eq('statut', 'ouvert')
-    .in('categorie_id', artisanCategorieIds.length > 0 ? artisanCategorieIds : [-1])
-    .order('created_at', { ascending: false })
+  // Parallel: open projects + project_ids this artisan has already responded to
+  // (avoids overfetching ALL reponses for ALL projects)
+  const [projetsRes, myReponsesRes] = await Promise.all([
+    supabase
+      .from('projets')
+      .select(`
+        *,
+        categories_metiers ( libelle ),
+        reponses ( id )
+      `)
+      .eq('statut', 'ouvert')
+      .in('categorie_id', artisanCategorieIds.length > 0 ? artisanCategorieIds : [-1])
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('reponses')
+      .select('projet_id')
+      .eq('artisan_id', artisan.id),
+  ])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const projets = projetsRaw as any[] | null
+  const projets = projetsRes.data as any[] | null
 
-  // Check which projects this artisan already responded to — O(n) with Set
-  const respondedProjectIds = new Set<string>()
-  for (const p of projets ?? []) {
-    const hasResponded = (p.reponses ?? []).some(
-      (r: { artisan_id: string }) => r.artisan_id === artisan.id
-    )
-    if (hasResponded) respondedProjectIds.add(p.id)
-  }
+  const respondedProjectIds = new Set<string>(
+    (myReponsesRes.data ?? []).map((r: { projet_id: string }) => r.projet_id),
+  )
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">

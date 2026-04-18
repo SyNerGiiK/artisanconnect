@@ -2,8 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import ParticulierProfileForm from './ParticulierProfileForm'
 
-export const dynamic = 'force-dynamic'
-
 export default async function ParticulierProfilePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -12,19 +10,14 @@ export default async function ParticulierProfilePage() {
     redirect('/connexion')
   }
 
-  // Fetch profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  // Parallel: profile + particulier (both only depend on user.id)
+  const [profileRes, particulierRes] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    supabase.from('particuliers').select('*').eq('profil_id', user.id).single(),
+  ])
 
-  // Fetch particulier
-  const { data: particulier } = await supabase
-    .from('particuliers')
-    .select('*')
-    .eq('profil_id', user.id)
-    .single()
+  const profile = profileRes.data
+  const particulier = particulierRes.data
 
   if (!profile || !particulier) {
     redirect('/particulier/onboarding')

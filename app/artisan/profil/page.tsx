@@ -3,8 +3,6 @@ import { redirect } from 'next/navigation'
 import ArtisanProfileForm from './ArtisanProfileForm'
 import PortalButton from '@/components/stripe/PortalButton'
 
-export const dynamic = 'force-dynamic'
-
 export default async function ArtisanProfilePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -13,38 +11,29 @@ export default async function ArtisanProfilePage() {
     redirect('/connexion')
   }
 
-  // Fetch profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  // Parallel: profile + artisan + all categories (all independent)
+  const [profileRes, artisanRes, allCategoriesRes] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    supabase.from('artisans').select('*').eq('profil_id', user.id).single(),
+    supabase.from('categories_metiers').select('*').order('id'),
+  ])
 
-  // Fetch artisan
-  const { data: artisanRaw } = await supabase
-    .from('artisans')
-    .select('*')
-    .eq('profil_id', user.id)
-    .single()
-
-  const artisan = artisanRaw as any
+  const profile = profileRes.data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const artisan = artisanRes.data as any
+  const allCategories = allCategoriesRes.data
 
   if (!profile || !artisan) {
     redirect('/artisan/onboarding')
   }
 
-  // Fetch all categories
-  const { data: allCategories } = await supabase
-    .from('categories_metiers')
-    .select('*')
-    .order('id')
-
-  // Fetch artisan's categories
+  // Depends on artisan.id — must run after
   const { data: artisanCategories } = await supabase
     .from('artisan_categories')
     .select('categorie_id')
     .eq('artisan_id', artisan.id)
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const selectedCategoryIds = artisanCategories?.map((cat: any) => cat.categorie_id) || []
 
   return (

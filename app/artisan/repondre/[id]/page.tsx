@@ -1,11 +1,8 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
-import { submitReponse } from './actions'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
+import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import StatusBadge from '@/components/ui/StatusBadge'
+import RepondreForm from './RepondreForm'
 
 type ProjetDetail = {
   id: string
@@ -18,69 +15,27 @@ type ProjetDetail = {
   categories_metiers: { libelle: string } | null
 }
 
-export default function RepondrePage() {
-  const { id } = useParams<{ id: string }>()
-  const [projet, setProjet] = useState<ProjetDetail | null>(null)
-  const [loadingProjet, setLoadingProjet] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+export default async function RepondrePage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  useEffect(() => {
-    async function fetchProjet() {
-      const supabase = createClient()
-      const { data } = await supabase
-        .from('projets')
-        .select('id, titre, description, ville, code_postal, statut, created_at, categories_metiers ( libelle )')
-        .eq('id', id)
-        .single()
+  if (!user) redirect('/connexion')
 
-      setProjet(data as ProjetDetail | null)
-      setLoadingProjet(false)
-    }
-    fetchProjet()
-  }, [id])
+  const { data } = await supabase
+    .from('projets')
+    .select('id, titre, description, ville, code_postal, statut, created_at, categories_metiers ( libelle )')
+    .eq('id', id)
+    .single()
 
-  async function handleSubmit(formData: FormData) {
-    setLoading(true)
-    setError(null)
-    const result = await submitReponse(id, formData)
-    if (result?.error) {
-      setError(result.error)
-      setLoading(false)
-    }
-  }
-
-  if (loadingProjet) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <svg className="animate-spin h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-        </svg>
-      </div>
-    )
-  }
+  const projet = data as ProjetDetail | null
 
   if (!projet) {
-    return (
-      <div className="mx-auto max-w-lg px-6 py-24 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 mb-6">
-          <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <p className="text-gray-500 mb-6">Projet non trouvé.</p>
-        <Link 
-          href="/artisan/feed" 
-          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Retour aux chantiers
-        </Link>
-      </div>
-    )
+    notFound()
   }
 
   return (
@@ -129,35 +84,7 @@ export default function RepondrePage() {
       </div>
 
       <div className="rounded-2xl bg-white p-8 shadow-xl ring-1 ring-gray-100">
-        <form action={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="message_initial" className="block text-sm font-medium text-gray-700 mb-2">
-              Votre message *
-            </label>
-            <textarea
-              id="message_initial"
-              name="message_initial"
-              required
-              rows={5}
-              placeholder="Bonjour, je suis disponible pour réaliser vos travaux. Voici ce que je propose..."
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
-            />
-          </div>
-
-          {error && (
-            <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600 ring-1 ring-red-200">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-[1.02] disabled:bg-gray-300 disabled:shadow-none disabled:hover:scale-100"
-          >
-            {loading ? 'Envoi en cours...' : 'Envoyer ma réponse'}
-          </button>
-        </form>
+        <RepondreForm projetId={projet.id} />
       </div>
     </div>
   )

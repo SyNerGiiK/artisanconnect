@@ -10,20 +10,19 @@ export default async function ParticulierDashboardPage() {
 
   if (!user) redirect('/connexion')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('prenom, nom')
-    .eq('id', user.id)
-    .single<{ prenom: string; nom: string }>()
+  // Parallel: profile + particulier record (both only depend on user.id)
+  const [profileRes, particulierRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('prenom, nom')
+      .eq('id', user.id)
+      .single<{ prenom: string; nom: string }>(),
+    supabase.from('particuliers').select('id').eq('profil_id', user.id).single(),
+  ])
 
-  const { data: particulierRaw } = await supabase
-    .from('particuliers')
-    .select('id')
-    .eq('profil_id', user.id)
-    .single()
-
+  const profile = profileRes.data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const particulier = particulierRaw as any
+  const particulier = particulierRes.data as any
 
   if (!particulier) redirect('/particulier/onboarding')
 
