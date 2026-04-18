@@ -22,8 +22,7 @@ SELECT
   description,
   siret,
   code_postal_base,
-  rayon_km,
-  created_at
+  rayon_km
 FROM artisans;
 
 -- La vue est accessible publiquement

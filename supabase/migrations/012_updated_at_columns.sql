@@ -56,7 +56,6 @@ SELECT
   siret,
   code_postal_base,
   rayon_km,
-  created_at,
   updated_at
 FROM artisans;
 
