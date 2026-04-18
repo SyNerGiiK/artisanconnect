@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { Suspense } from "react";
+import TopProgressBar from "@/components/ui/TopProgressBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -41,6 +43,9 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
+        <Suspense fallback={null}>
+          <TopProgressBar />
+        </Suspense>
         {children}
       </body>
     </html>
