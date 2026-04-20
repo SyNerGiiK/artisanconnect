@@ -4,6 +4,14 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp']
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function isValidUUID(id: string): boolean {
+  return UUID_REGEX.test(id)
+}
+
 export async function uploadProjectPhoto(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -13,24 +21,32 @@ export async function uploadProjectPhoto(formData: FormData) {
   const file = formData.get('photo') as File | null
   if (!file || !projetId) return { error: 'Paramètres manquants' }
 
-  if (file.size > 5 * 1024 * 1024) return { error: 'Image trop lourde (max 5 Mo)' }
+  // Validate UUID format to prevent injection
+  if (!isValidUUID(projetId)) return { error: 'ID projet invalide' }
+
+  // Validate file
+  if (!ALLOWED_MIMES.includes(file.type)) return { error: 'Format non supporté (JPEG, PNG, WebP)' }
+  if (file.size > MAX_FILE_SIZE) return { error: 'Image trop lourde (max 5 Mo)' }
 
   // Verify ownership
-  const { data: particulier } = await supabase
+  const { data: particulier, error: particulierError } = await supabase
     .from('particuliers').select('id').eq('profil_id', user.id).single()
-  if (!particulier) return { error: 'Profil non trouvé' }
+  if (particulierError || !particulier) return { error: 'Profil non trouvé' }
 
-  const { data: projet } = await supabase
-    .from('projets').select('photos').eq('id', projetId).eq('particulier_id', particulier.id).single()
-  if (!projet) return { error: 'Projet non trouvé' }
+  const { data: projet, error: projetError } = await supabase
+    .from('projets')
+    .select('photos')
+    .eq('id', projetId)
+    .eq('particulier_id', particulier.id)
+    .single()
+  if (projetError || !projet) return { error: 'Projet non trouvé' }
 
-  const existingPhotos: string[] = (projet as any).photos ?? []
+  const existingPhotos = (projet as { photos?: string[] }).photos ?? []
   if (existingPhotos.length >= 5) return { error: 'Maximum 5 photos atteint' }
 
   const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
   const path = `${projetId}/${Date.now()}.${ext}`
 
-  // Use admin client to upload (bypasses RLS for storage)
   const adminClient = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -46,7 +62,7 @@ export async function uploadProjectPhoto(formData: FormData) {
 
   const { error: updateError } = await supabase
     .from('projets')
-    .update({ photos: [...existingPhotos, publicUrl] } as any)
+    .update({ photos: [...existingPhotos, publicUrl] })
     .eq('id', projetId)
     .eq('particulier_id', particulier.id)
 
@@ -61,20 +77,30 @@ export async function deleteProjectPhoto(projetId: string, photoUrl: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié' }
 
-  const { data: particulier } = await supabase
+  // Validate UUID format
+  if (!isValidUUID(projetId)) return { error: 'ID projet invalide' }
+
+  // Basic URL validation
+  if (!photoUrl.startsWith('https://')) return { error: 'URL invalide' }
+
+  const { data: particulier, error: particulierError } = await supabase
     .from('particuliers').select('id').eq('profil_id', user.id).single()
-  if (!particulier) return { error: 'Profil non trouvé' }
+  if (particulierError || !particulier) return { error: 'Profil non trouvé' }
 
-  const { data: projet } = await supabase
-    .from('projets').select('photos').eq('id', projetId).eq('particulier_id', particulier.id).single()
-  if (!projet) return { error: 'Projet non trouvé' }
+  const { data: projet, error: projetError } = await supabase
+    .from('projets')
+    .select('photos')
+    .eq('id', projetId)
+    .eq('particulier_id', particulier.id)
+    .single()
+  if (projetError || !projet) return { error: 'Projet non trouvé' }
 
-  const existingPhotos: string[] = (projet as any).photos ?? []
+  const existingPhotos = (projet as { photos?: string[] }).photos ?? []
   const newPhotos = existingPhotos.filter((p) => p !== photoUrl)
 
   const { error } = await supabase
     .from('projets')
-    .update({ photos: newPhotos } as any)
+    .update({ photos: newPhotos })
     .eq('id', projetId)
     .eq('particulier_id', particulier.id)
 

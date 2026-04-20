@@ -10,6 +10,12 @@ const FEATURE_PRICES: Record<FeatureType, string | undefined> = {
   photos: process.env.STRIPE_PRICE_ID_PHOTOS,
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function isValidUUID(id: string): boolean {
+  return UUID_REGEX.test(id)
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
@@ -24,11 +30,21 @@ export async function POST(req: Request) {
     if (!particulier) return new NextResponse('Not a particulier', { status: 403 })
 
     const body = await req.json().catch(() => ({}))
-    const featureType: FeatureType = body.type
-    const projetId: string = body.projet_id
+    const featureType = body.type as string | undefined
+    const projetId = body.projet_id as string | undefined
 
-    if (!featureType || !projetId || !FEATURE_PRICES[featureType]) {
-      return new NextResponse('Missing or invalid parameters', { status: 400 })
+    // Validate inputs
+    if (!featureType || !projetId) {
+      return new NextResponse('Missing parameters', { status: 400 })
+    }
+
+    if (!(featureType in FEATURE_PRICES) || !FEATURE_PRICES[featureType as FeatureType]) {
+      return new NextResponse('Invalid feature type', { status: 400 })
+    }
+
+    // Validate UUID format to prevent injection
+    if (!isValidUUID(projetId)) {
+      return new NextResponse('Invalid project ID', { status: 400 })
     }
 
     // Verify the particulier owns this project
@@ -40,7 +56,7 @@ export async function POST(req: Request) {
       .single()
     if (!projet) return new NextResponse('Projet not found', { status: 404 })
 
-    const priceId = FEATURE_PRICES[featureType]!
+    const priceId = FEATURE_PRICES[featureType as FeatureType]!
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     const session = await stripe.checkout.sessions.create({
@@ -49,6 +65,7 @@ export async function POST(req: Request) {
       mode: 'payment',
       success_url: `${appUrl}/particulier/projet/${projetId}?boost=success`,
       cancel_url: `${appUrl}/particulier/projet/${projetId}`,
+      client_reference_id: particulier.id,
       metadata: { type: featureType, projet_id: projetId },
     })
 
