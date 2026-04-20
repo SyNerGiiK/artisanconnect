@@ -4,6 +4,8 @@ import Link from 'next/link'
 import StatusBadge from '@/components/ui/StatusBadge'
 import ReponseActions from '@/components/projects/ReponseActions'
 import ProjectStatusActions from '@/components/projects/ProjectStatusActions'
+import ProjetBoostOptions from '@/components/projects/ProjetBoostOptions'
+import PhotoUploader from '@/components/projects/PhotoUploader'
 
 export default async function ProjetDetailPage({
   params,
@@ -24,8 +26,8 @@ export default async function ProjetDetailPage({
 
   if (!particulier) redirect('/particulier/onboarding')
 
-  // Parallel: project details + responses with artisan info
-  const [projetRes, reponsesRes] = await Promise.all([
+  // Parallel: project details + responses + conversations
+  const [projetRes, reponsesRes, convsRes] = await Promise.all([
     supabase
       .from('projets')
       .select('*, categories_metiers ( libelle )')
@@ -37,6 +39,7 @@ export default async function ProjetDetailPage({
       .select(`
         *,
         artisans (
+          id,
           nom_entreprise,
           description,
           code_postal_base
@@ -44,10 +47,15 @@ export default async function ProjetDetailPage({
       `)
       .eq('projet_id', id)
       .order('created_at', { ascending: true }),
+    supabase
+      .from('conversations')
+      .select('id, artisan_id')
+      .eq('projet_id', id),
   ])
 
   const projet = projetRes.data
   const reponses = reponsesRes.data
+  const convMap = new Map((convsRes.data ?? []).map((c) => [c.artisan_id, c.id]))
 
   if (!projet) notFound()
 
@@ -90,7 +98,25 @@ export default async function ProjetDetailPage({
         </div>
 
         <ProjectStatusActions projetId={projet.id} currentStatut={projet.statut} />
+
+        {/* Photos */}
+        {(projet as any).photos_unlocked && (
+          <PhotoUploader
+            projetId={projet.id}
+            existingPhotos={(projet as any).photos ?? []}
+          />
+        )}
       </div>
+
+      {/* Boost options — only for active projects */}
+      {(projet.statut === 'ouvert' || projet.statut === 'en_cours') && (
+        <ProjetBoostOptions
+          projetId={projet.id}
+          isBoosted={(projet as any).is_boosted ?? false}
+          isUrgent={(projet as any).is_urgent ?? false}
+          photosUnlocked={(projet as any).photos_unlocked ?? false}
+        />
+      )}
 
       {/* Responses */}
       <h2 className="text-lg font-semibold mb-4">
@@ -149,6 +175,22 @@ export default async function ProjetDetailPage({
                   projetId={projet.id}
                 />
               )}
+
+              {reponse.statut === 'acceptee' && (() => {
+                const artisanId = (reponse.artisans as any)?.id
+                const convId = artisanId ? convMap.get(artisanId) : undefined
+                return convId ? (
+                  <Link
+                    href={`/particulier/conversations/${convId}`}
+                    className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Envoyer un message
+                  </Link>
+                ) : null
+              })()}
             </div>
           ))}
         </div>

@@ -47,6 +47,8 @@ export default async function ArtisanFeedPage() {
       `)
       .eq('statut', 'ouvert')
       .in('categorie_id', artisanCategorieIds.length > 0 ? artisanCategorieIds : [-1])
+      .order('is_boosted', { ascending: false })
+      .order('is_urgent', { ascending: false })
       .order('created_at', { ascending: false }),
     supabase
       .from('reponses')
@@ -123,8 +125,20 @@ export default async function ArtisanFeedPage() {
                 className="group rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-lg hover:ring-blue-200"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">{projet.titre}</h3>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {projet.is_boosted && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                        🚀 Boosté
+                      </span>
+                    )}
+                    {projet.is_urgent && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                        ⚡ Urgent
+                      </span>
+                    )}
+                    <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">{projet.titre}</h3>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                       {responseCount}/3 réponse{responseCount > 1 ? 's' : ''}
                     </span>

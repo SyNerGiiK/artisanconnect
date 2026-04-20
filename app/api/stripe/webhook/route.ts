@@ -24,8 +24,24 @@ export async function POST(req: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as any;
+        const featureType: string | undefined = session.metadata?.type;
+        const projetId: string | undefined = session.metadata?.projet_id;
+
+        // Client feature purchase (boost / urgence / photos)
+        if (featureType && projetId) {
+          const updates: Record<string, boolean> = {}
+          if (featureType === 'boost') updates.is_boosted = true
+          if (featureType === 'urgence') updates.is_urgent = true
+          if (featureType === 'photos') updates.photos_unlocked = true
+
+          if (Object.keys(updates).length > 0) {
+            await supabaseAdmin.from('projets').update(updates).eq('id', projetId)
+          }
+          break
+        }
+
+        // Artisan subscription purchase
         const artisanId = session.client_reference_id || session.metadata?.artisan_id;
-        
         if (artisanId) {
           await supabaseAdmin.from('artisans').update({
             stripe_customer_id: session.customer,

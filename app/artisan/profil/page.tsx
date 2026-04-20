@@ -55,15 +55,12 @@ export default async function ArtisanProfilePage() {
         )}
       </div>
 
-      {/* Card */}
-      <div className="rounded-2xl bg-white p-8 shadow-xl ring-1 ring-gray-100">
-        <ArtisanProfileForm 
-          profile={profile} 
-          artisan={artisan} 
-          allCategories={allCategories || []}
-          initialSelectedCategories={selectedCategoryIds}
-        />
-      </div>
+      <ArtisanProfileForm
+        profile={profile}
+        artisan={artisan}
+        allCategories={allCategories || []}
+        initialSelectedCategories={selectedCategoryIds}
+      />
     </div>
   )
 }

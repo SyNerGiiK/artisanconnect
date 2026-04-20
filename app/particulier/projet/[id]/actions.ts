@@ -45,7 +45,7 @@ export async function updateReponseStatus(
 
 export async function updateProjectStatus(
   projetId: string,
-  newStatut: 'en_cours' | 'annule'
+  newStatut: 'en_cours' | 'annule' | 'termine'
 ) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -19,37 +19,45 @@ export default async function MesReponsesPage() {
 
   if (!artisan) redirect('/artisan/onboarding')
 
-  // Fetch responses with project details
-  const { data: reponsesRaw } = await supabase
-    .from('reponses')
-    .select(`
-      id,
-      statut,
-      message_initial,
-      created_at,
-      projets (
+  // Parallel: responses + conversations
+  const [reponsesRes, convsRes] = await Promise.all([
+    supabase
+      .from('reponses')
+      .select(`
         id,
-        titre,
-        description,
-        ville,
-        code_postal
-      )
-    `)
-    .eq('artisan_id', artisan.id)
-    .order('created_at', { ascending: false })
+        statut,
+        message_initial,
+        created_at,
+        projet_id,
+        projets (
+          id,
+          titre,
+          description,
+          ville,
+          code_postal
+        )
+      `)
+      .eq('artisan_id', artisan.id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('conversations')
+      .select('id, projet_id')
+      .eq('artisan_id', artisan.id),
+  ])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const reponses = reponsesRaw as any[] | null
+  const reponses = reponsesRes.data as any[] | null
+  const convMap = new Map((convsRes.data ?? []).map((c) => [c.projet_id, c.id]))
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
       {/* Header */}
       <div className="mb-10">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-          Mes devis envoyes
+          Mes devis envoyés
         </h1>
         <p className="mt-2 text-gray-600">
-          Suivez l&apos;etat de vos candidatures aupres des particuliers.
+          Suivez l&apos;état de vos candidatures auprès des particuliers.
         </p>
       </div>
 
@@ -64,8 +72,8 @@ export default async function MesReponsesPage() {
           <p className="text-gray-500 mb-8 max-w-sm mx-auto">
             Vous n&apos;avez pas encore répondu à un chantier.
           </p>
-          <Link 
-            href="/artisan/feed" 
+          <Link
+            href="/artisan/feed"
             className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-[1.02]"
           >
             Découvrir les chantiers
@@ -76,47 +84,81 @@ export default async function MesReponsesPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {reponses.map((reponse: any) => (
-            <div key={reponse.id} className="group rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-lg hover:ring-blue-200 flex flex-col md:flex-row gap-6">
-              <div className="flex-1">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">{reponse.projets?.titre}</h3>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    reponse.statut === 'acceptee' ? 'bg-green-100 text-green-700 ring-1 ring-green-200' :
-                    reponse.statut === 'refusee' ? 'bg-red-100 text-red-700 ring-1 ring-red-200' :
-                    'bg-amber-100 text-amber-700 ring-1 ring-amber-200'
-                  }`}>
-                    {reponse.statut === 'acceptee' ? 'Acceptée' :
-                     reponse.statut === 'refusee' ? 'Refusée' :
-                     'En attente'}
+          {reponses.map((reponse: any) => {
+            const convId = convMap.get(reponse.projet_id)
+            const isRefusee = reponse.statut === 'refusee'
+            const isAcceptee = reponse.statut === 'acceptee'
+
+            return (
+              <div
+                key={reponse.id}
+                className={`group rounded-2xl bg-white p-6 shadow-sm ring-1 transition-all flex flex-col md:flex-row gap-6 ${
+                  isRefusee
+                    ? 'opacity-60 ring-gray-100'
+                    : isAcceptee
+                    ? 'ring-green-200 hover:shadow-lg hover:ring-green-300'
+                    : 'ring-gray-100 hover:shadow-lg hover:ring-blue-200'
+                }`}
+              >
+                <div className="flex-1">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
+                      {reponse.projets?.titre}
+                    </h3>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      isAcceptee ? 'bg-green-100 text-green-700 ring-1 ring-green-200' :
+                      isRefusee ? 'bg-red-100 text-red-700 ring-1 ring-red-200' :
+                      'bg-amber-100 text-amber-700 ring-1 ring-amber-200'
+                    }`}>
+                      {isAcceptee ? 'Acceptée' : isRefusee ? 'Refusée' : 'En attente'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-sm text-gray-500 mb-4">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {reponse.projets?.ville} ({reponse.projets?.code_postal})
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-xl text-sm text-gray-700 italic ring-1 ring-gray-100 line-clamp-2">
+                    &quot;{reponse.message_initial}&quot;
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 justify-end min-w-[180px]">
+                  <span className="text-xs text-center text-gray-500">
+                    Envoyé le {new Date(reponse.created_at).toLocaleDateString('fr-FR')}
                   </span>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-gray-500 mb-4">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  {reponse.projets?.ville} ({reponse.projets?.code_postal})
-                </div>
-                
-                <div className="bg-gray-50 p-4 rounded-xl text-sm text-gray-700 italic ring-1 ring-gray-100 line-clamp-2">
-                  &quot;{reponse.message_initial}&quot;
+
+                  {isAcceptee && convId && (
+                    <Link
+                      href={`/artisan/conversations/${convId}`}
+                      className="w-full text-center rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+                    >
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      Ouvrir la conversation
+                    </Link>
+                  )}
+
+                  {!isAcceptee && !isRefusee && (
+                    <span className="w-full text-center rounded-xl bg-amber-50 px-4 py-2.5 text-sm text-amber-700 ring-1 ring-amber-200">
+                      En attente du client
+                    </span>
+                  )}
+
+                  {isRefusee && (
+                    <span className="w-full text-center rounded-xl bg-gray-50 px-4 py-2.5 text-sm text-gray-500 ring-1 ring-gray-200">
+                      Demande refusée
+                    </span>
+                  )}
                 </div>
               </div>
-              
-              <div className="flex flex-col gap-3 justify-end min-w-[160px]">
-                <span className="text-xs text-center text-gray-500">
-                  Envoyé le {new Date(reponse.created_at).toLocaleDateString('fr-FR')}
-                </span>
-                <Link
-                  href={`/artisan/conversations`}
-                  className="w-full text-center rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-gray-300 transition-all"
-                >
-                  Voir les messages
-                </Link>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

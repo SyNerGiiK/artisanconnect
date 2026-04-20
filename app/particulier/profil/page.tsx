@@ -35,10 +35,7 @@ export default async function ParticulierProfilePage() {
         </p>
       </div>
 
-      {/* Card */}
-      <div className="rounded-2xl bg-white p-8 shadow-xl ring-1 ring-gray-100">
-        <ParticulierProfileForm profile={profile} particulier={particulier} />
-      </div>
+      <ParticulierProfileForm profile={profile} particulier={particulier} />
     </div>
   )
 }
