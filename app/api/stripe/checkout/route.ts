@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 
+const VALID_PRICE_IDS = new Set([
+  process.env.STRIPE_PRICE_ID_MENSUEL,
+  process.env.STRIPE_PRICE_ID_ANNUEL,
+  process.env.STRIPE_PRICE_ID_FONDATEURS,
+])
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
@@ -15,8 +21,14 @@ export async function POST(req: Request) {
       .single<{ id: string; stripe_customer_id: string | null }>()
     if (!artisan) return new NextResponse('Not an artisan', { status: 403 })
 
-    // Si on a pas de prix configuré
-    if (!process.env.STRIPE_PRICE_ID) {
+    const body = await req.json().catch(() => ({}))
+    const requestedPriceId: string | undefined = body.priceId
+
+    const priceId = VALID_PRICE_IDS.has(requestedPriceId)
+      ? requestedPriceId
+      : process.env.STRIPE_PRICE_ID_MENSUEL
+
+    if (!priceId) {
       return new NextResponse('Stripe Price ID is missing', { status: 500 })
     }
 
@@ -26,23 +38,16 @@ export async function POST(req: Request) {
       payment_method_types: ['card'],
       billing_address_collection: 'required',
       customer: artisan.stripe_customer_id || undefined,
-      line_items: [
-        {
-          price: process.env.STRIPE_PRICE_ID,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
       success_url: `${appUrl}/artisan/abonnement/succes?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/artisan/abonnement/cancel`,
-      metadata: {
-        artisan_id: artisan.id,
-      },
+      metadata: { artisan_id: artisan.id },
       client_reference_id: artisan.id,
     })
 
     return NextResponse.json({ url: session.url })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[STRIPE_CHECKOUT_ERROR]', err)
     return new NextResponse('Internal Error', { status: 500 })
   }

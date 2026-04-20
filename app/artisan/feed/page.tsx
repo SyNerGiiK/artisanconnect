@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import SignOutButton from '@/components/auth/SignOutButton'
 import Link from 'next/link'
 import StatusBadge from '@/components/ui/StatusBadge'
-import CheckoutButton from '@/components/stripe/CheckoutButton'
 
 export default async function ArtisanFeedPage() {
   const supabase = await createClient()
@@ -85,7 +84,15 @@ export default async function ArtisanFeedPage() {
               <p className="text-sm text-amber-800 mt-1 max-w-xl">
                 L'accès aux chantiers, aux coordonnées des particuliers et la possibilité d'envoyer vos devis sont réservés aux artisans Premium. Prenez une longueur d'avance dès aujourd'hui !
               </p>
-              <CheckoutButton />
+              <Link
+                href="/artisan/abonnement"
+                className="mt-3 inline-flex items-center gap-2 rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-amber-700 transition-all"
+              >
+                Voir les offres Premium
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
             </div>
           </div>
         </div>
