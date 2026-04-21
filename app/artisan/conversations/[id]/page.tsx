@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import ChatRoom from '@/components/chat/ChatRoom'
+import Avatar from '@/components/ui/Avatar'
 
 export default async function ArtisanChatPage({
   params,
@@ -14,7 +15,6 @@ export default async function ArtisanChatPage({
 
   if (!user) redirect('/connexion')
 
-  // Parallel: artisan record + current user's profile
   const [artisanRes, artisanProfileRes] = await Promise.all([
     supabase.from('artisans').select('id').eq('profil_id', user.id).single(),
     supabase.from('profiles').select('id, prenom, nom').eq('id', user.id).single(),
@@ -25,7 +25,6 @@ export default async function ArtisanChatPage({
 
   const artisanProfile = artisanProfileRes.data as { id: string; prenom: string; nom: string } | null
 
-  // Fetch conversation with project and participants
   const { data: conversationRaw } = await supabase
     .from('conversations')
     .select(`
@@ -46,8 +45,7 @@ export default async function ArtisanChatPage({
   const conversation = conversationRaw as any
   if (!conversation) notFound()
 
-  // Build participants map
-  const particulierProfile = (conversation.particuliers as any)?.profiles
+  const particulierProfile = conversation.particuliers?.profiles
   const participants: Record<string, { id: string; prenom: string; nom: string }> = {}
 
   if (artisanProfile) {
@@ -60,31 +58,33 @@ export default async function ArtisanChatPage({
   const interlocuteurNom = particulierProfile
     ? `${particulierProfile.prenom} ${particulierProfile.nom}`
     : 'Particulier'
+  const projetTitre = conversation.projets?.titre ?? ''
 
   return (
-    <div className="flex h-[calc(100vh-2rem)] flex-col mx-auto max-w-3xl px-4 py-4">
+    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-3xl flex-col px-4 py-5 md:h-[calc(100vh-1rem)]">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-gray-200 pb-4 mb-0">
+      <div className="flex items-center gap-3 rounded-t-ac border border-b-0 border-ac-border bg-ac-surface px-5 py-3.5">
         <Link
           href="/artisan/conversations"
-          className="text-sm text-blue-600 hover:underline"
+          className="shrink-0 text-sm font-semibold text-ac-text-sub transition-colors hover:text-ac-primary-text"
         >
-          &larr; Retour
+          ←
         </Link>
-        <div className="flex-1 min-w-0">
-          <h1 className="font-semibold truncate">{interlocuteurNom}</h1>
-          <p className="text-xs text-gray-500 truncate">
-            {(conversation.projets as any)?.titre}
-          </p>
+        <Avatar name={interlocuteurNom} size={38} />
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-bold text-ac-text">{interlocuteurNom}</h1>
+          <p className="truncate text-xs text-ac-text-muted">{projetTitre}</p>
         </div>
       </div>
 
       {/* Chat */}
-      <ChatRoom
-        conversationId={id}
-        currentUserId={user.id}
-        participants={participants}
-      />
+      <div className="flex flex-1 min-h-0 flex-col rounded-b-ac border border-t-0 border-ac-border bg-ac-bg">
+        <ChatRoom
+          conversationId={id}
+          currentUserId={user.id}
+          participants={participants}
+        />
+      </div>
     </div>
   )
 }

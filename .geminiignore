@@ -1,0 +1,34 @@
+# Build outputs and dependencies
+.next/
+node_modules/
+dist/
+build/
+.cache/
+out/
+
+# Environment and secrets
+.env*
+!.env.example
+secrets.*
+*.pem
+*.key
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Git files
+.git/
+
+# Local agent/tool data
+.agents/
+.claude/
+.continue/
+
+# Project specific artifacts (non-source)
+package-lock.json
+public/
+artisanconnect/ # To be verified, but looks like a separate/old folder or duplicate

@@ -6,23 +6,22 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="text-xl font-bold text-blue-600">
+    <div className="min-h-screen bg-ac-bg">
+      <nav className="sticky top-0 z-50 border-b border-ac-border-light bg-white/92 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-[1100px] items-center justify-between px-6">
+          <Link href="/" className="text-xl font-extrabold tracking-tight text-ac-primary">
             ArtisanConnect
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Link
               href="/connexion"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+              className="rounded-ac-sm border border-ac-border bg-ac-surface px-4 py-2 text-sm font-semibold text-ac-text transition-colors hover:bg-ac-surface-hover"
             >
               Se connecter
             </Link>
             <Link
               href="/inscription"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+              className="rounded-ac-sm bg-ac-primary px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-ac-primary-dark hover:shadow-[0_4px_14px_rgba(59,130,246,0.3)]"
             >
               S&apos;inscrire
             </Link>
@@ -30,16 +29,8 @@ export default function AuthLayout({
         </div>
       </nav>
 
-      {/* Background with gradient like landing page */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50" />
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-blue-100/50 blur-3xl" />
-        
-        <div className="relative mx-auto max-w-6xl px-6 py-16 sm:py-24">
-          <div className="mx-auto max-w-md">
-            {children}
-          </div>
-        </div>
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-6 py-12">
+        {children}
       </div>
     </div>
   )

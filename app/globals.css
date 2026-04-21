@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
+/* ArtisanConnect — "Pro Sombre" theme tokens (per design handoff 2026-04-21) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surface / text */
+  --ac-bg: #f1f5f9;
+  --ac-surface: #ffffff;
+  --ac-surface-hover: #f8fafc;
+  --ac-border: #e2e8f0;
+  --ac-border-light: #f1f5f9;
+  --ac-text: #0f172a;
+  --ac-text-sub: #475569;
+  --ac-text-muted: #94a3b8;
+
+  /* Primary (blue) */
+  --ac-primary: #3b82f6;
+  --ac-primary-dark: #2563eb;
+  --ac-primary-light: #eff6ff;
+  --ac-primary-border: #bfdbfe;
+  --ac-primary-text: #2563eb;
+
+  /* Accents */
+  --ac-green: #059669;
+  --ac-green-light: #ecfdf5;
+  --ac-green-border: #a7f3d0;
+  --ac-amber: #d97706;
+  --ac-amber-light: #fffbeb;
+  --ac-amber-border: #fde68a;
+  --ac-red: #dc2626;
+  --ac-red-light: #fef2f2;
+
+  /* Dark navy sidebar */
+  --ac-nav-bg: #0f172a;
+  --ac-nav-text: #94a3b8;
+  --ac-nav-border: #1e293b;
+  --ac-nav-active: rgba(59, 130, 246, 0.15);
+  --ac-nav-active-text: #60a5fa;
+  --ac-nav-logo: #f1f5f9;
+
+  /* Shape */
+  --ac-radius: 8px;
+  --ac-radius-sm: 6px;
+  --ac-radius-lg: 12px;
+
+  /* Shadows */
+  --ac-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --ac-shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.12);
+  --ac-shadow-primary: 0 4px 14px rgba(59, 130, 246, 0.3);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-dm-sans);
+  --font-heading: var(--font-dm-sans);
+  --font-display: var(--font-playfair);
+
+  --color-ac-bg: var(--ac-bg);
+  --color-ac-surface: var(--ac-surface);
+  --color-ac-surface-hover: var(--ac-surface-hover);
+  --color-ac-border: var(--ac-border);
+  --color-ac-border-light: var(--ac-border-light);
+  --color-ac-text: var(--ac-text);
+  --color-ac-text-sub: var(--ac-text-sub);
+  --color-ac-text-muted: var(--ac-text-muted);
+
+  --color-ac-primary: var(--ac-primary);
+  --color-ac-primary-dark: var(--ac-primary-dark);
+  --color-ac-primary-light: var(--ac-primary-light);
+  --color-ac-primary-border: var(--ac-primary-border);
+  --color-ac-primary-text: var(--ac-primary-text);
+
+  --color-ac-green: var(--ac-green);
+  --color-ac-green-light: var(--ac-green-light);
+  --color-ac-green-border: var(--ac-green-border);
+  --color-ac-amber: var(--ac-amber);
+  --color-ac-amber-light: var(--ac-amber-light);
+  --color-ac-amber-border: var(--ac-amber-border);
+  --color-ac-red: var(--ac-red);
+  --color-ac-red-light: var(--ac-red-light);
+
+  --color-ac-nav-bg: var(--ac-nav-bg);
+  --color-ac-nav-text: var(--ac-nav-text);
+  --color-ac-nav-border: var(--ac-nav-border);
+  --color-ac-nav-active: var(--ac-nav-active);
+  --color-ac-nav-active-text: var(--ac-nav-active-text);
+  --color-ac-nav-logo: var(--ac-nav-logo);
+
+  --radius-ac: var(--ac-radius);
+  --radius-ac-sm: var(--ac-radius-sm);
+  --radius-ac-lg: var(--ac-radius-lg);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ac-bg);
+  color: var(--ac-text);
+  font-family: var(--font-dm-sans), "DM Sans", system-ui, -apple-system, Segoe UI, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+@keyframes ac-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.ac-pulse { animation: ac-pulse 2s infinite; }
+
+@keyframes ac-fade-in-down {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+.ac-toast { animation: ac-fade-in-down 0.2s ease-out; }

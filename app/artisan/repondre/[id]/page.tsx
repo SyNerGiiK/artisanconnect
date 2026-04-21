@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import StatusBadge from '@/components/ui/StatusBadge'
+import Card from '@/components/ui/Card'
+import Tag from '@/components/ui/Tag'
 import RepondreForm from './RepondreForm'
 
 type ProjetDetail = {
@@ -34,58 +36,49 @@ export default async function RepondrePage({
 
   const projet = data as ProjetDetail | null
 
-  if (!projet) {
-    notFound()
-  }
+  if (!projet) notFound()
 
   return (
-    <div className="mx-auto max-w-lg px-6 py-12">
-      <div className="mb-8">
-        <Link
-          href="/artisan/feed"
-          className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Retour aux chantiers
-        </Link>
-      </div>
+    <div className="mx-auto max-w-[640px] px-7 py-8">
+      <Link
+        href="/artisan/feed"
+        className="mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-ac-text-sub transition-colors hover:text-ac-primary"
+      >
+        ← Retour aux chantiers
+      </Link>
 
       {/* Project summary card */}
-      <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-100 mb-8">
-        <div className="flex items-start justify-between mb-4">
-          <h2 className="font-semibold text-lg text-gray-900">{projet.titre}</h2>
+      <Card className="mb-6 p-6">
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+          <h2 className="text-lg font-bold text-ac-text">{projet.titre}</h2>
           <StatusBadge statut={projet.statut} />
         </div>
-        <p className="text-sm text-gray-600 mb-4">{projet.description}</p>
-        <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
+        <p className="mb-4 whitespace-pre-line text-sm leading-relaxed text-ac-text-sub">
+          {projet.description}
+        </p>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-ac-text-muted">
           {projet.categories_metiers && (
-            <span className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium">{projet.categories_metiers.libelle}</span>
+            <Tag color="primary">{projet.categories_metiers.libelle}</Tag>
           )}
-          <span className="flex items-center gap-1">
-            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            {projet.ville} ({projet.code_postal})
+          <span className="inline-flex items-center gap-1 rounded-full border border-ac-border bg-ac-surface-hover px-2.5 py-0.5 font-semibold">
+            📍 {projet.ville} ({projet.code_postal})
           </span>
         </div>
-      </div>
+      </Card>
 
       {/* Response form */}
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+      <div className="mb-6">
+        <h1 className="text-2xl font-extrabold tracking-tight text-ac-text">
           Répondre à ce chantier
         </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Présentez-vous et expliquez pourquoi vous êtes le bon artisan pour ce projet.
+        <p className="mt-1 text-sm text-ac-text-sub">
+          Présentez-vous et expliquez pourquoi vous êtes le bon artisan.
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white p-8 shadow-xl ring-1 ring-gray-100">
+      <Card className="p-7 sm:p-8">
         <RepondreForm projetId={projet.id} />
-      </div>
+      </Card>
     </div>
   )
 }

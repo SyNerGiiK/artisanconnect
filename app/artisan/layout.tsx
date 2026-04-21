@@ -1,11 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
-import SignOutButton from '@/components/auth/SignOutButton'
+import Sidebar, { type NavItem } from '@/components/layout/Sidebar'
 
-/**
- * Guard layout: only users with role='artisan' can access /artisan/* pages.
- */
 export default async function ArtisanLayout({
   children,
 }: {
@@ -18,37 +14,36 @@ export default async function ArtisanLayout({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, prenom, nom')
     .eq('id', user.id)
-    .single<{ role: string }>()
+    .single<{ role: string; prenom: string | null; nom: string | null }>()
 
   if (profile?.role !== 'artisan') redirect('/particulier/dashboard')
 
+  const { data: artisan } = await supabase
+    .from('artisans')
+    .select('nom_entreprise')
+    .eq('profil_id', user.id)
+    .single<{ nom_entreprise: string | null }>()
+
+  const nav: NavItem[] = [
+    { href: '/artisan/feed', label: 'Chantiers', icon: '🏗️' },
+    { href: '/artisan/mes-reponses', label: 'Mes devis', icon: '📝' },
+    { href: '/artisan/conversations', label: 'Messagerie', icon: '💬' },
+    { href: '/artisan/profil', label: 'Mon profil', icon: '👤' },
+    { href: '/artisan/abonnement', label: 'Abonnement', icon: '💎' },
+  ]
+
+  const userName =
+    `${profile?.prenom ?? ''} ${profile?.nom ?? ''}`.trim() || 'Artisan'
+  const userSub = artisan?.nom_entreprise ?? 'Artisan'
+
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/artisan/feed" className="text-xl font-bold text-blue-600">ArtisanConnect</Link>
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-              <Link href="/artisan/feed" className="text-gray-700 hover:text-blue-600 transition-colors">Chantiers</Link>
-              <Link href="/artisan/mes-reponses" className="text-gray-700 hover:text-blue-600 transition-colors">Mes devis</Link>
-              <Link href="/artisan/conversations" className="text-gray-700 hover:text-blue-600 transition-colors">Messages</Link>
-              <Link href="/artisan/profil" className="text-gray-700 hover:text-blue-600 transition-colors">Mon Profil</Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
-              <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              Espace Pro
-            </div>
-            <SignOutButton />
-          </div>
-        </div>
-      </header>
-      <main className="flex-1 bg-gradient-to-b from-blue-50/50 to-white">
-        {children}
-      </main>
+    <div className="flex h-screen bg-ac-bg overflow-hidden">
+      <Sidebar role="artisan" nav={nav} userName={userName} userSub={userSub} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
     </div>
   )
 }

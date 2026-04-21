@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { DM_Sans, Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
 import TopProgressBar from "@/components/ui/TopProgressBar";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["700", "800"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -41,8 +50,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
+    <html lang="fr" className={`${dmSans.variable} ${playfair.variable} h-full`}>
+      <body className="min-h-full bg-ac-bg text-ac-text antialiased">
         <Suspense fallback={null}>
           <TopProgressBar />
         </Suspense>

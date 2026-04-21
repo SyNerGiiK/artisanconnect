@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { CategorieMetier } from '@/lib/types/database.types'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
 
-// -- Data fetching for categories (dynamic content) --------------------------
 async function getCategories(): Promise<CategorieMetier[]> {
   const supabase = await createClient()
   const { data } = await supabase
@@ -12,504 +13,400 @@ async function getCategories(): Promise<CategorieMetier[]> {
   return (data as CategorieMetier[] | null) ?? []
 }
 
-// -- Icons as inline SVG components ------------------------------------------
-function PaintIcon() {
-  return (
-    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-    </svg>
-  )
-}
+const HOW_IT_WORKS = [
+  {
+    step: '1',
+    icon: '✏️',
+    title: 'Décrivez votre projet',
+    desc: 'Renseignez les détails de votre chantier : type de travaux, localisation, description.',
+  },
+  {
+    step: '2',
+    icon: '📬',
+    title: 'Recevez des devis',
+    desc: "Jusqu'à 3 artisans vérifiés de votre zone vous contactent avec leur proposition.",
+  },
+  {
+    step: '3',
+    icon: '✅',
+    title: 'Choisissez le meilleur',
+    desc: "Comparez les propositions, échangez par messagerie et choisissez l'artisan idéal.",
+  },
+]
 
-function FloorIcon() {
-  return (
-    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-    </svg>
-  )
-}
+const PARTICULIER_BULLETS = [
+  'Service 100% gratuit pour les particuliers',
+  'Maximum 3 artisans par projet',
+  'Artisans vérifiés (SIRET obligatoire)',
+  'Échangez par messagerie sécurisée',
+  'Vos coordonnées restent privées',
+]
 
-function GardenIcon() {
-  return (
-    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-    </svg>
-  )
-}
+const ARTISAN_BULLETS = [
+  'Abonnement fixe — pas de frais par contact',
+  'Répondez à autant de chantiers que vous voulez',
+  'Leads qualifiés dans votre zone',
+  'Profil public référencé sur Google',
+  'Messagerie directe avec les clients',
+]
 
-const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
-  'peinture': PaintIcon,
-  'sols-murs': FloorIcon,
-  'espaces-verts': GardenIcon,
-}
-
-// -- Main Landing Page -------------------------------------------------------
 export default async function HomePage() {
   const categories = await getCategories()
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* ── NAVIGATION ───────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="text-xl font-bold text-blue-600">
+    <div className="min-h-screen bg-white text-ac-text">
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-ac-border-light px-6">
+        <div className="mx-auto max-w-6xl h-16 flex items-center justify-between">
+          <Link href="/" className="text-xl font-extrabold text-ac-primary tracking-tight">
             ArtisanConnect
           </Link>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#comment-ca-marche" className="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
-              Comment ça marche
-            </a>
-            <a href="#tarifs" className="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
-              Tarifs
-            </a>
-            <a href="#nos-metiers" className="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
-              Nos métiers
-            </a>
+          <div className="hidden md:flex gap-8">
+            {[
+              { href: '#comment-ca-marche', label: 'Comment ça marche' },
+              { href: '#tarifs', label: 'Tarifs' },
+              { href: '#nos-metiers', label: 'Nos métiers' },
+            ].map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="text-sm font-medium text-ac-text-sub hover:text-ac-primary transition-colors"
+              >
+                {l.label}
+              </a>
+            ))}
           </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/connexion"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
-            >
-              Se connecter
-            </Link>
-            <Link
-              href="/inscription"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-            >
-              S&apos;inscrire
-            </Link>
+          <div className="flex gap-2.5">
+            <Button href="/connexion" variant="secondary" size="sm">Se connecter</Button>
+            <Button href="/inscription" variant="primary" size="sm">S&apos;inscrire</Button>
           </div>
         </div>
       </nav>
 
-      {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50" />
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-blue-100/50 blur-3xl" />
-
-        <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32 lg:py-40">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700 ring-1 ring-blue-200">
-              <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              Lancement en Vendée (85)
-            </div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-              Trouvez le bon artisan{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
-                près de chez vous
-              </span>
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-gray-600 sm:text-xl">
-              Décrivez votre projet, recevez jusqu&apos;à 3 devis d&apos;artisans vérifiés.
-              <br className="hidden sm:block" />
-              <strong>Gratuit pour les particuliers, sans commission.</strong>
-            </p>
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Link
-                href="/inscription"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-105"
-              >
-                Je cherche un artisan
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-              <Link
-                href="/inscription"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-blue-200 bg-white px-8 py-4 text-base font-semibold text-blue-600 transition-all hover:bg-blue-50 hover:border-blue-300"
-              >
-                Je suis artisan
-              </Link>
-            </div>
+      {/* Hero */}
+      <section className="relative overflow-hidden py-20 sm:py-24 px-6 text-center bg-gradient-to-br from-ac-primary-light via-white to-ac-primary-light">
+        <div
+          aria-hidden
+          className="absolute top-[-100px] left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-ac-primary/10 blur-3xl pointer-events-none"
+        />
+        <div className="relative mx-auto max-w-3xl">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-ac-primary-light border border-ac-primary-border px-4 py-1.5 text-sm font-semibold text-ac-primary-text">
+            <span className="inline-block h-2 w-2 rounded-full bg-green-500 ac-pulse" />
+            Lancement en Vendée (85)
+          </div>
+          <h1
+            className="font-extrabold leading-[1.15] tracking-[-1.5px] text-ac-text"
+            style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
+          >
+            Trouvez le bon artisan
+            <br />
+            <span className="inline-block pb-1 bg-gradient-to-br from-ac-primary to-ac-primary-dark bg-clip-text text-transparent">
+              près de chez vous
+            </span>
+          </h1>
+          <p className="mt-5 text-lg text-ac-text-sub leading-relaxed">
+            Décrivez votre projet, recevez jusqu&apos;à{' '}
+            <strong className="text-ac-text">3 devis d&apos;artisans vérifiés</strong>.
+            <br />
+            Gratuit pour les particuliers, sans commission.
+          </p>
+          <div className="mt-9 flex flex-wrap gap-3 justify-center">
+            <Button href="/inscription" variant="primary" size="lg">
+              Je cherche un artisan →
+            </Button>
+            <Button href="/inscription" variant="secondary" size="lg">
+              Je suis artisan
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* ── COMMENT ÇA MARCHE ─────────────────────────────────────── */}
-      <section id="comment-ca-marche" className="border-t border-gray-100 bg-gray-50 py-20 sm:py-28">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+      {/* How it works */}
+      <section id="comment-ca-marche" className="py-20 px-6 bg-ac-bg">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-14">
+            <h2
+              className="font-extrabold tracking-tight"
+              style={{ fontSize: 'clamp(28px, 4vw, 40px)' }}
+            >
               Comment ça marche ?
             </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              3 étapes simples pour trouver votre artisan
-            </p>
+            <p className="mt-3 text-ac-text-sub">3 étapes simples pour trouver votre artisan</p>
           </div>
-
-          <div className="mt-16 grid gap-8 sm:grid-cols-3">
-            {[
-              {
-                step: '1',
-                title: 'Décrivez votre projet',
-                desc: 'Renseignez les détails de votre chantier : type de travaux, localisation, description.',
-                icon: (
-                  <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                ),
-              },
-              {
-                step: '2',
-                title: 'Recevez des devis',
-                desc: 'Jusqu\'à 3 artisans vérifiés de votre zone vous contactent avec leur proposition.',
-                icon: (
-                  <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
-                ),
-              },
-              {
-                step: '3',
-                title: 'Choisissez le meilleur',
-                desc: 'Comparez les propositions, échangez par messagerie et choisissez l\'artisan idéal.',
-                icon: (
-                  <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                ),
-              },
-            ].map((item) => (
-              <div
-                key={item.step}
-                className="group relative rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-lg hover:-translate-y-1"
-              >
-                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+          <div className="grid gap-6 sm:grid-cols-3">
+            {HOW_IT_WORKS.map((item) => (
+              <Card key={item.step} hover className="relative p-8">
+                <div className="mb-5 h-12 w-12 rounded-ac-sm bg-ac-primary-light text-ac-primary flex items-center justify-center text-[22px]">
                   {item.icon}
                 </div>
-                <div className="absolute top-6 right-6 text-4xl font-black text-gray-100">
+                <div className="absolute top-5 right-6 text-5xl font-black text-ac-border-light leading-none">
                   {item.step}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-gray-600 leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
+                <h3 className="font-bold text-base mb-2">{item.title}</h3>
+                <p className="text-sm text-ac-text-sub leading-relaxed">{item.desc}</p>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── POUR LES PARTICULIERS ─────────────────────────────────── */}
-      <section className="py-20 sm:py-28">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
-              <div className="mb-4 inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700 ring-1 ring-green-200">
-                100% gratuit
-              </div>
-              <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-                Particuliers : vos travaux en toute sérénité
-              </h2>
-              <p className="mt-4 text-lg text-gray-600">
-                Fini le démarchage intempestif. Avec ArtisanConnect, vous gardez le contrôle.
-              </p>
-              <ul className="mt-8 space-y-4">
-                {[
-                  { text: 'Service 100% gratuit pour les particuliers', strong: true },
-                  { text: 'Maximum 3 artisans par projet — pas de harcèlement', strong: false },
-                  { text: 'Artisans vérifiés (SIRET obligatoire)', strong: false },
-                  { text: 'Échangez par messagerie sécurisée', strong: false },
-                  { text: 'Vos coordonnées restent privées', strong: false },
-                ].map((item) => (
-                  <li key={item.text} className="flex items-start gap-3">
-                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className={`text-gray-700 ${item.strong ? 'font-semibold' : ''}`}>
-                      {item.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/inscription"
-                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-green-700 hover:shadow-lg"
-              >
-                Publier mon projet gratuitement
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
+      {/* Particuliers */}
+      <section className="py-20 px-6 bg-white">
+        <div className="mx-auto max-w-6xl grid gap-12 items-center lg:grid-cols-2">
+          <div>
+            <span className="inline-block rounded-full bg-ac-green-light border border-ac-green-border text-ac-green px-3.5 py-1 text-xs font-bold mb-4">
+              100% gratuit
+            </span>
+            <h2
+              className="font-extrabold tracking-tight mb-3"
+              style={{ fontSize: 'clamp(24px, 3vw, 36px)' }}
+            >
+              Particuliers : vos travaux en toute sérénité
+            </h2>
+            <p className="text-ac-text-sub mb-6">
+              Fini le démarchage intempestif. Avec ArtisanConnect, vous gardez le contrôle.
+            </p>
+            <ul className="space-y-2.5">
+              {PARTICULIER_BULLETS.map((b) => (
+                <li key={b} className="flex gap-2.5 text-sm text-ac-text-sub">
+                  <span className="text-ac-green shrink-0">✓</span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6">
+              <Button href="/inscription" variant="green" size="lg">
+                Publier mon projet gratuitement →
+              </Button>
             </div>
-            <div className="rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 p-10 ring-1 ring-green-100">
-              <div className="space-y-6">
-                {[
-                  { num: '0€', label: 'pour le particulier' },
-                  { num: '3 max', label: 'artisans par projet' },
-                  { num: '< 24h', label: 'pour recevoir un devis' },
-                ].map((stat) => (
-                  <div key={stat.label} className="flex items-center gap-4 rounded-xl bg-white p-5 shadow-sm">
-                    <div className="text-3xl font-black text-green-600">{stat.num}</div>
-                    <div className="text-gray-600">{stat.label}</div>
-                  </div>
-                ))}
+          </div>
+          <div className="rounded-ac-lg p-10 bg-gradient-to-br from-ac-green-light to-white border border-ac-green-border">
+            {[
+              { num: '0€', label: 'pour le particulier' },
+              { num: '3 max', label: 'artisans par projet' },
+              { num: '< 24h', label: 'pour recevoir un devis' },
+            ].map((s) => (
+              <Card key={s.label} className="mb-3 flex items-center gap-4 px-5 py-4 last:mb-0">
+                <div className="text-3xl font-black text-ac-green">{s.num}</div>
+                <div className="text-sm text-ac-text-sub">{s.label}</div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Artisans */}
+      <section className="py-20 px-6 bg-ac-primary-light border-t border-ac-border-light">
+        <div className="mx-auto max-w-6xl grid gap-12 items-center lg:grid-cols-2">
+          <Card className="p-10 order-2 lg:order-1">
+            {[
+              { num: '0%', label: 'de commission' },
+              { num: '50€', label: '/ mois sans engagement' },
+              { num: '∞', label: 'chantiers accessibles' },
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="mb-2.5 flex items-center gap-4 bg-ac-primary-light rounded-ac-sm p-4 last:mb-0"
+              >
+                <div className="text-3xl font-black text-ac-primary">{s.num}</div>
+                <div className="text-sm text-ac-text-sub">{s.label}</div>
               </div>
+            ))}
+          </Card>
+          <div className="order-1 lg:order-2">
+            <span className="inline-block rounded-full bg-ac-primary-light border border-ac-primary-border text-ac-primary-text px-3.5 py-1 text-xs font-bold mb-4">
+              Pour les pros
+            </span>
+            <h2
+              className="font-extrabold tracking-tight mb-3"
+              style={{ fontSize: 'clamp(24px, 3vw, 36px)' }}
+            >
+              Artisans : des chantiers sans les arnaques
+            </h2>
+            <p className="text-ac-text-sub mb-6">
+              Un abonnement fixe, des leads qualifiés, zéro surprise sur la facture.
+            </p>
+            <ul className="space-y-2.5">
+              {ARTISAN_BULLETS.map((b) => (
+                <li key={b} className="flex gap-2.5 text-sm text-ac-text-sub">
+                  <span className="text-ac-primary shrink-0">✓</span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6">
+              <Button href="/inscription" variant="primary" size="lg">
+                Rejoindre ArtisanConnect →
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── POUR LES ARTISANS ─────────────────────────────────────── */}
-      <section className="border-t border-gray-100 bg-gradient-to-br from-blue-50 to-blue-50 py-20 sm:py-28">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="order-2 lg:order-1 rounded-2xl bg-white p-10 shadow-lg ring-1 ring-blue-100">
-              <div className="space-y-6">
-                {[
-                  { num: '0%', label: 'de commission' },
-                  { num: '50€', label: '/ mois sans engagement' },
-                  { num: '∞', label: 'chantiers accessibles' },
-                ].map((stat) => (
-                  <div key={stat.label} className="flex items-center gap-4 rounded-xl bg-blue-50 p-5">
-                    <div className="text-3xl font-black text-blue-600">{stat.num}</div>
-                    <div className="text-gray-600">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="order-1 lg:order-2">
-              <div className="mb-4 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 ring-1 ring-blue-200">
-                Pour les pros
-              </div>
-              <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-                Artisans : des chantiers sans les arnaques
-              </h2>
-              <p className="mt-4 text-lg text-gray-600">
-                Un abonnement fixe, des leads qualifiés, zéro surprise sur la facture.
-              </p>
-              <ul className="mt-8 space-y-4">
-                {[
-                  'Abonnement fixe — pas de frais par contact',
-                  'Répondez à autant de chantiers que vous voulez',
-                  'Leads qualifiés dans votre zone (par département)',
-                  'Profil public référencé sur Google',
-                  'Messagerie directe avec les clients',
-                ].map((text) => (
-                  <li key={text} className="flex items-start gap-3">
-                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-gray-700">{text}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/inscription"
-                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-700 hover:shadow-lg"
-              >
-                Rejoindre ArtisanConnect
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── NOS MÉTIERS ───────────────────────────────────────────── */}
-      <section id="nos-metiers" className="py-20 sm:py-28">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+      {/* Nos métiers */}
+      <section id="nos-metiers" className="py-20 px-6 bg-white">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-14">
+            <h2
+              className="font-extrabold tracking-tight"
+              style={{ fontSize: 'clamp(28px, 4vw, 40px)' }}
+            >
               Nos métiers
             </h2>
-            <p className="mt-4 text-lg text-gray-600">
+            <p className="mt-3 text-ac-text-sub">
               Des artisans qualifiés dans chaque spécialité
             </p>
           </div>
-
-          <div className="mt-16 grid gap-8 sm:grid-cols-3">
-            {categories.map((cat) => {
-              const IconComponent = CATEGORY_ICONS[cat.slug] ?? PaintIcon
-              return (
-                <div
-                  key={cat.id}
-                  className="group rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-lg hover:-translate-y-1"
-                >
-                  <div className="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                    <IconComponent />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {cat.libelle}
-                  </h3>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {categories.map((cat) => (
+              <Card key={cat.id} hover className="p-8 text-center">
+                <div className="mx-auto mb-4 h-14 w-14 rounded-ac bg-ac-primary-light text-ac-primary flex items-center justify-center text-2xl">
+                  🔧
                 </div>
-              )
-            })}
+                <h3 className="font-bold text-base">{cat.libelle}</h3>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── TARIFS ────────────────────────────────────────────────── */}
-      <section id="tarifs" className="border-t border-gray-100 bg-gray-50 py-20 sm:py-28">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+      {/* Tarifs */}
+      <section id="tarifs" className="py-20 px-6 bg-ac-bg border-t border-ac-border-light">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-14">
+            <h2
+              className="font-extrabold tracking-tight"
+              style={{ fontSize: 'clamp(28px, 4vw, 40px)' }}
+            >
               Tarifs artisans
             </h2>
-            <p className="mt-4 text-lg text-gray-600">
+            <p className="mt-3 text-ac-text-sub">
               Simple, transparent, sans mauvaise surprise
             </p>
           </div>
-
-          <div className="mt-16 grid gap-8 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-3">
             {/* Mensuel */}
-            <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200 transition-shadow hover:shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900">Mensuel</h3>
-              <p className="mt-1 text-sm text-gray-500">Sans engagement</p>
-              <div className="mt-6">
-                <span className="text-4xl font-black text-gray-900">50€</span>
-                <span className="text-gray-500"> / mois</span>
+            <Card className="p-8">
+              <h3 className="font-bold text-base">Mensuel</h3>
+              <p className="mt-1 text-xs text-ac-text-muted">Sans engagement</p>
+              <div className="mt-5">
+                <span className="text-[40px] font-black text-ac-text">50€</span>
+                <span className="text-ac-text-muted text-sm"> / mois</span>
               </div>
-              <ul className="mt-8 space-y-3">
+              <ul className="mt-6 space-y-2.5">
                 {['Accès illimité aux chantiers', 'Profil public SEO', 'Messagerie directe', 'Zéro commission'].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                    <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+                  <li key={f} className="flex gap-2 text-[13px] text-ac-text-sub">
+                    <span className="text-ac-green shrink-0">✓</span>
                     {f}
                   </li>
                 ))}
               </ul>
-              <Link
-                href="/inscription"
-                className="mt-8 block w-full rounded-xl border-2 border-blue-200 py-3 text-center text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-50"
-              >
+              <Button href="/inscription" variant="secondary" full className="mt-6">
                 Commencer
-              </Link>
-            </div>
+              </Button>
+            </Card>
 
-            {/* Annuel — populaire */}
-            <div className="relative rounded-2xl bg-blue-600 p-8 text-white shadow-xl ring-2 ring-blue-600 transition-shadow hover:shadow-2xl">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-4 py-1 text-xs font-bold text-amber-900 uppercase tracking-wide">
-                Le + populaire
+            {/* Annuel */}
+            <Card className="relative p-8 border-2 border-ac-primary bg-ac-primary-light">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-amber-400 px-4 py-1 text-[11px] font-bold text-amber-900 whitespace-nowrap">
+                LE PLUS POPULAIRE
               </div>
-              <h3 className="text-lg font-semibold">Annuel</h3>
-              <p className="mt-1 text-sm text-blue-200">Économisez 120€/an</p>
-              <div className="mt-6">
-                <span className="text-4xl font-black">40€</span>
-                <span className="text-blue-200"> / mois</span>
+              <h3 className="font-bold text-base">Annuel ⭐</h3>
+              <p className="mt-1 text-xs text-ac-text-muted">Facturé 480€/an — 2 mois offerts</p>
+              <div className="mt-5">
+                <span className="text-[40px] font-black text-ac-primary">40€</span>
+                <span className="text-ac-text-muted text-sm"> / mois</span>
               </div>
-              <p className="mt-1 text-sm text-blue-300">facturé 480€/an</p>
-              <ul className="mt-8 space-y-3">
+              <ul className="mt-6 space-y-2.5">
                 {['Tout du mensuel inclus', '2 mois offerts', 'Priorité commerciale', 'Support prioritaire'].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-blue-100">
-                    <svg className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+                  <li key={f} className="flex gap-2 text-[13px] text-ac-text-sub">
+                    <span className="text-ac-primary shrink-0">✓</span>
                     {f}
                   </li>
                 ))}
               </ul>
-              <Link
-                href="/inscription"
-                className="mt-8 block w-full rounded-xl bg-white py-3 text-center text-sm font-semibold text-blue-600 transition-all hover:shadow-lg"
-              >
+              <Button href="/inscription" variant="primary" full className="mt-6">
                 Choisir l&apos;annuel
-              </Link>
-            </div>
+              </Button>
+            </Card>
 
-            {/* Fondateurs */}
-            <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-amber-200 transition-shadow hover:shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900">Offre Fondateurs</h3>
-              <p className="mt-1 text-sm text-amber-600 font-medium">50 places seulement</p>
-              <div className="mt-6">
-                <span className="text-4xl font-black text-gray-900">25€</span>
-                <span className="text-gray-500"> / mois</span>
+            {/* Fondateur */}
+            <Card className="p-8 border-2 border-ac-amber-border">
+              <h3 className="font-bold text-base">Offre Fondateurs 🚀</h3>
+              <p className="mt-1 text-xs text-ac-amber font-bold">
+                Facturé 300€/an à vie — 50 places
+              </p>
+              <div className="mt-5">
+                <span className="text-[40px] font-black text-ac-amber">25€</span>
+                <span className="text-ac-text-muted text-sm"> / mois</span>
               </div>
-              <p className="mt-1 text-sm text-gray-500">facturé 300€/an <strong>à vie</strong></p>
-              <ul className="mt-8 space-y-3">
+              <ul className="mt-6 space-y-2.5">
                 {['Tarif préférentiel à vie', 'Tout du plan annuel', 'Badge « Fondateur »', 'Accès anticipé nouveautés'].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                    <svg className="h-4 w-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+                  <li key={f} className="flex gap-2 text-[13px] text-ac-text-sub">
+                    <span className="text-ac-amber shrink-0">✓</span>
                     {f}
                   </li>
                 ))}
               </ul>
-              <Link
-                href="/inscription"
-                className="mt-8 block w-full rounded-xl bg-amber-500 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-amber-600"
-              >
+              <Button href="/inscription" variant="amber" full className="mt-6">
                 Devenir fondateur
-              </Link>
-            </div>
+              </Button>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* ── FOOTER ────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-200 bg-white py-12">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="grid gap-8 sm:grid-cols-4">
-            <div>
-              <Link href="/" className="text-lg font-bold text-blue-600">
-                ArtisanConnect
-              </Link>
-              <p className="mt-2 text-sm text-gray-500">
-                La plateforme équitable pour vos travaux
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900">Produit</h4>
-              <ul className="mt-4 space-y-2 text-sm">
-                <li>
-                  <a href="#comment-ca-marche" className="text-gray-600 hover:text-blue-600 transition-colors">
-                    Comment ça marche
-                  </a>
-                </li>
-                <li>
-                  <a href="#tarifs" className="text-gray-600 hover:text-blue-600 transition-colors">
-                    Tarifs
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900">Légal</h4>
-              <ul className="mt-4 space-y-2 text-sm">
-                <li>
-                  <Link href="/cgu" className="text-gray-600 hover:text-blue-600 transition-colors">
-                    CGU
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/cgv" className="text-gray-600 hover:text-blue-600 transition-colors">
-                    CGV
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/mentions-legales" className="text-gray-600 hover:text-blue-600 transition-colors">
-                    Mentions légales
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
-                    Politique de confidentialité
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900">Contact</h4>
-              <ul className="mt-4 space-y-2 text-sm">
-                <li className="text-gray-600">
-                  contact@artisanconnect.fr
-                </li>
-                <li className="text-gray-600">
-                  Vendée (85)
-                </li>
-              </ul>
+      {/* Footer */}
+      <footer className="bg-white border-t border-ac-border py-12 px-6">
+        <div className="mx-auto max-w-6xl grid gap-8 sm:grid-cols-4">
+          <div>
+            <div className="font-extrabold text-base text-ac-primary mb-2">ArtisanConnect</div>
+            <div className="text-[13px] text-ac-text-muted">
+              La plateforme équitable pour vos travaux
             </div>
           </div>
-          <div className="mt-8 border-t border-gray-100 pt-6 text-center text-sm text-gray-400">
-            © {new Date().getFullYear()} ArtisanConnect. Tous droits réservés.
-          </div>
+          {[
+            {
+              title: 'Produit',
+              links: [
+                { label: 'Comment ça marche', href: '#comment-ca-marche' },
+                { label: 'Tarifs', href: '#tarifs' },
+              ],
+            },
+            {
+              title: 'Légal',
+              links: [
+                { label: 'CGU', href: '/cgu' },
+                { label: 'CGV', href: '/cgv' },
+                { label: 'Mentions légales', href: '/mentions-legales' },
+              ],
+            },
+            {
+              title: 'Contact',
+              links: [
+                { label: 'contact@artisanconnect.fr', href: '#' },
+                { label: 'Vendée (85)', href: '#' },
+              ],
+            },
+          ].map((col) => (
+            <div key={col.title}>
+              <div className="font-bold text-[13px] mb-3">{col.title}</div>
+              {col.links.map((l) => (
+                <div key={l.label} className="text-[13px] text-ac-text-muted mb-2 hover:text-ac-primary">
+                  {l.href.startsWith('/') ? (
+                    <Link href={l.href} className="hover:text-ac-primary">
+                      {l.label}
+                    </Link>
+                  ) : (
+                    <a href={l.href}>{l.label}</a>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="mx-auto max-w-6xl mt-6 pt-4 border-t border-ac-border-light text-center text-xs text-ac-text-muted">
+          © {new Date().getFullYear()} ArtisanConnect. Tous droits réservés.
         </div>
       </footer>
     </div>

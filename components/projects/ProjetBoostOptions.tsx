@@ -41,7 +41,7 @@ export default function ProjetBoostOptions({ projetId, isBoosted, isUrgent, phot
       type: 'urgence' as const,
       icon: '⚡',
       label: 'Badge Urgence',
-      desc: 'Signalez vos travaux comme urgents pour attirer les artisans disponibles rapidement.',
+      desc: 'Signalez vos travaux comme urgents pour attirer des artisans disponibles rapidement.',
       price: '2,99 €',
       done: isUrgent,
       doneLabel: 'Badge activé',
@@ -58,33 +58,38 @@ export default function ProjetBoostOptions({ projetId, isBoosted, isUrgent, phot
   ]
 
   return (
-    <div className="mt-8 rounded-xl border border-indigo-100 bg-indigo-50/40 p-5">
-      <h3 className="font-semibold text-indigo-900 mb-1">Boostez votre projet</h3>
-      <p className="text-sm text-indigo-700 mb-5">
+    <div className="mb-6 rounded-ac border border-indigo-200 bg-indigo-50/60 p-5">
+      <h3 className="mb-1 font-bold text-[15px] text-indigo-900">Boostez votre projet</h3>
+      <p className="mb-4 text-[13px] text-indigo-700">
         Augmentez vos chances de trouver l&apos;artisan idéal plus rapidement.
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {options.map((opt) => (
           <div
             key={opt.type}
-            className={`rounded-xl border p-4 flex flex-col gap-2 ${
+            className={`flex flex-col gap-1.5 rounded-ac-sm border p-4 ${
               opt.done
-                ? 'border-green-200 bg-green-50'
-                : 'border-white bg-white shadow-sm'
+                ? 'border-ac-green-border bg-ac-green-light'
+                : 'border-ac-border bg-ac-surface shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
             }`}
           >
-            <div className="text-2xl">{opt.icon}</div>
-            <div className="font-semibold text-sm text-gray-900">{opt.label}</div>
-            <p className="text-xs text-gray-500 flex-1">{opt.desc}</p>
+            <div className="text-[22px] leading-none">{opt.icon}</div>
+            <div className="text-[13px] font-bold text-ac-text">{opt.label}</div>
+            <p className="flex-1 text-xs leading-relaxed text-ac-text-muted">
+              {opt.desc}
+            </p>
             {opt.done ? (
-              <span className="text-xs font-semibold text-green-700">✓ {opt.doneLabel}</span>
+              <span className="text-xs font-bold text-ac-green">
+                ✓ {opt.doneLabel}
+              </span>
             ) : (
               <button
+                type="button"
                 onClick={() => purchase(opt.type)}
                 disabled={loading !== null}
-                className="mt-1 w-full rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                className="mt-1 w-full rounded-ac-sm bg-indigo-600 px-3 py-2 text-xs font-bold text-white transition-all hover:bg-indigo-700 disabled:opacity-50"
               >
-                {loading === opt.type ? 'Redirection...' : opt.price}
+                {loading === opt.type ? 'Redirection…' : opt.price}
               </button>
             )}
           </div>

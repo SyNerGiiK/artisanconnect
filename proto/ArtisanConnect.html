@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArtisanConnect — Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Load component files in order -->
+<script type="text/babel" src="proto/theme.jsx"></script>
+<script type="text/babel" src="proto/shared.jsx"></script>
+<script type="text/babel" src="proto/Nav.jsx"></script>
+<script type="text/babel" src="proto/Landing.jsx"></script>
+<script type="text/babel" src="proto/Onboarding.jsx"></script>
+<script type="text/babel" src="proto/Feed.jsx"></script>
+<script type="text/babel" src="proto/Screens.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "theme": "pro",
+  "showTweaks": false
+}/*EDITMODE-END*/;
+
+function App() {
+  const savedState = (() => { try { return JSON.parse(localStorage.getItem('ac_proto') || '{}'); } catch { return {}; } })();
+
+  const [screen, setScreenRaw] = useState(savedState.screen || 'landing');
+  const [role, setRole] = useState(savedState.role || 'particulier');
+  const [tweaks, setTweaks] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('ac_tweaks') || '{}');
+      return { ...TWEAK_DEFAULTS, ...saved };
+    } catch { return TWEAK_DEFAULTS; }
+  });
+  const [showTweaksPanel, setShowTweaksPanel] = useState(false);
+
+  const setScreen = (s) => {
+    setScreenRaw(s);
+    localStorage.setItem('ac_proto', JSON.stringify({ screen: s, role }));
+  };
+
+  const setRoleAndSave = (r) => {
+    setRole(r);
+    localStorage.setItem('ac_proto', JSON.stringify({ screen, role: r }));
+  };
+
+  const updateTweak = (key, value) => {
+    const next = { ...tweaks, [key]: value };
+    setTweaks(next);
+    localStorage.setItem('ac_tweaks', JSON.stringify(next));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: next }, '*');
+  };
+
+  useEffect(() => {
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === '__activate_edit_mode') setShowTweaksPanel(true);
+      if (e.data?.type === '__deactivate_edit_mode') setShowTweaksPanel(false);
+    });
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+  }, []);
+
+  const theme = THEMES[tweaks.theme] || THEMES.classique;
+
+  // APP SCREENS (authenticated, with sidebar)
+  const appScreens = ['feed', 'dashboard', 'conversations', 'chat', 'project-detail', 'profile-public', 'profile-particulier', 'pricing'];
+  const isApp = appScreens.includes(screen);
+
+  const renderScreen = () => {
+    switch (screen) {
+      case 'landing': return <LandingPage setScreen={setScreen} setRole={setRoleAndSave} />;
+      case 'login': return <LoginScreen setScreen={setScreen} role={role} />;
+      case 'signup': return <SignupScreen setScreen={setScreen} role={role} setRole={setRoleAndSave} />;
+      case 'onboarding-artisan': return <OnboardingArtisan setScreen={setScreen} />;
+      case 'onboarding-particulier': return <OnboardingParticulier setScreen={setScreen} />;
+      case 'feed': return <ArtisanFeed setScreen={setScreen} />;
+      case 'dashboard': return <ParticulierDashboard setScreen={setScreen} />;
+      case 'conversations': return <ConversationsScreen setScreen={setScreen} role={role} />;
+      case 'chat': return <ChatScreen setScreen={setScreen} />;
+      case 'project-detail': return <ProjectDetail setScreen={setScreen} />;
+      case 'profile-public': return <ArtisanProfile setScreen={setScreen} />;
+      case 'profile-particulier': return <ParticulierProfile />;
+      case 'pricing': return <PricingScreen setScreen={setScreen} />;
+      default: return <LandingPage setScreen={setScreen} setRole={setRoleAndSave} />;
+    }
+  };
+
+  return (
+    <ThemeContext.Provider value={theme}>
+      <div style={{ fontFamily: theme.font, height: '100vh', background: theme.bg }}>
+        {isApp ? (
+          <AppShell screen={screen} setScreen={setScreen} role={role} setRole={setRoleAndSave}>
+            {renderScreen()}
+          </AppShell>
+        ) : (
+          renderScreen()
+        )}
+
+        {/* Tweaks panel */}
+        {showTweaksPanel && (
+          <div style={{
+            position: 'fixed', bottom: 20, right: 20, width: 280,
+            background: '#fff', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.16)', border: '1px solid #e5e7eb',
+            padding: 20, zIndex: 9999, fontFamily: "'DM Sans', sans-serif",
+          }}>
+            <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 16, color: '#111827' }}>Tweaks</div>
+
+            {/* Theme selector */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>DIRECTION VISUELLE</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {Object.entries(THEMES).map(([key, th]) => (
+                  <button key={key} onClick={() => updateTweak('theme', key)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, border: `2px solid ${tweaks.theme === key ? theme.primary : '#e5e7eb'}`, background: tweaks.theme === key ? theme.primaryLight : '#fff', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: tweaks.theme === key ? 700 : 500, color: '#111827', textAlign: 'left', transition: 'all 0.15s' }}>
+                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: th.primary, flexShrink: 0 }} />
+                    {th.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <hr style={{ border: 'none', borderTop: '1px solid #f3f4f6', margin: '12px 0' }} />
+
+            {/* Screen jump */}
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>ÉCRAN</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {[
+                  { id: 'landing', label: '🏠 Landing page' },
+                  { id: 'login', label: '🔐 Connexion' },
+                  { id: 'signup', label: '✍️ Inscription' },
+                  { id: 'onboarding-artisan', label: '🔨 Onboarding artisan' },
+                  { id: 'onboarding-particulier', label: '🏗️ Onboarding particulier' },
+                  { id: 'feed', label: '📋 Feed artisan' },
+                  { id: 'dashboard', label: '📊 Dashboard particulier' },
+                  { id: 'project-detail', label: '📁 Détail projet + boosts' },
+                  { id: 'conversations', label: '💬 Conversations' },
+                  { id: 'chat', label: '💭 Chat temps réel' },
+                  { id: 'profile-public', label: '👤 Profil artisan public' },
+                  { id: 'profile-particulier', label: '👤 Profil particulier' },
+                  { id: 'pricing', label: '💎 Tarifs artisan' },
+                ].map(s => (
+                  <button key={s.id} onClick={() => { setScreen(s.id); if (['feed','profile-public','pricing'].includes(s.id)) setRoleAndSave('artisan'); if (['dashboard','project-detail','profile-particulier','conversations'].includes(s.id)) setRoleAndSave('particulier'); }}
+                    style={{ padding: '6px 10px', borderRadius: 6, border: `1.5px solid ${screen === s.id ? theme.primary : 'transparent'}`, background: screen === s.id ? theme.primaryLight : 'transparent', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: screen === s.id ? 700 : 400, color: screen === s.id ? theme.primaryText : '#374151', textAlign: 'left', transition: 'all 0.1s' }}>
+                    {s.label}
+
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </ThemeContext.Provider>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="140" fill="#eff6ff"/>
+    <rect x="20" y="20" width="160" height="100" rx="10" fill="#fff" stroke="#bfdbfe" stroke-width="1.5"/>
+    <rect x="30" y="32" width="80" height="8" rx="4" fill="#2563eb"/>
+    <rect x="30" y="48" width="140" height="5" rx="3" fill="#e5e7eb"/>
+    <rect x="30" y="60" width="120" height="5" rx="3" fill="#e5e7eb"/>
+    <rect x="30" y="76" width="60" height="26" rx="8" fill="#2563eb"/>
+    <rect x="100" y="76" width="70" height="26" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  </svg>
+</template>
+</body>
+</html>

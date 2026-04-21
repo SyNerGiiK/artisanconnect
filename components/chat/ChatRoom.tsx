@@ -212,28 +212,28 @@ export default function ChatRoom({
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">
-        Chargement des messages...
+      <div className="flex flex-1 items-center justify-center text-sm text-ac-text-muted">
+        Chargement des messages…
       </div>
     )
   }
 
   return (
-    <div className="flex flex-1 flex-col min-h-0">
+    <div className="flex flex-1 min-h-0 flex-col">
       {/* Messages area */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div ref={scrollContainerRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-5">
         {hasMore && (
           <button
             onClick={loadOlderMessages}
             disabled={loadingMore}
-            className="mx-auto block text-sm text-blue-600 hover:text-blue-800 py-2"
+            className="mx-auto block py-2 text-xs font-semibold text-ac-primary-text hover:text-ac-primary-dark disabled:opacity-50"
           >
-            {loadingMore ? 'Chargement...' : 'Charger les messages précédents'}
+            {loadingMore ? 'Chargement…' : '↑ Charger les messages précédents'}
           </button>
         )}
-        
+
         {messages.length === 0 && (
-          <p className="text-center text-gray-400 text-sm py-8">
+          <p className="py-10 text-center text-sm text-ac-text-muted">
             Aucun message pour le moment. Commencez la conversation !
           </p>
         )}
@@ -250,7 +250,7 @@ export default function ChatRoom({
       </div>
 
       {/* Input area */}
-      <div className="border-t border-gray-200 px-4 py-3">
+      <div className="border-t border-ac-border bg-ac-surface px-4 py-3">
         <ChatInput onSend={handleSend} />
       </div>
     </div>

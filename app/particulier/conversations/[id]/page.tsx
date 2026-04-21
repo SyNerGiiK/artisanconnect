@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import ChatRoom from '@/components/chat/ChatRoom'
+import Avatar from '@/components/ui/Avatar'
 
 export default async function ParticulierChatPage({
   params,
@@ -22,7 +23,6 @@ export default async function ParticulierChatPage({
 
   if (!particulier) redirect('/particulier/onboarding')
 
-  // Fetch conversation with project and participants
   const { data: conversation } = await supabase
     .from('conversations')
     .select(`
@@ -42,14 +42,13 @@ export default async function ParticulierChatPage({
 
   if (!conversation) notFound()
 
-  // Get particulier profile info
   const { data: particulierProfile } = await supabase
     .from('profiles')
     .select('id, prenom, nom')
     .eq('id', user.id)
     .single()
 
-  // Build participants map
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const artisanData = conversation.artisans as any
   const artisanProfile = artisanData?.profiles
   const participants: Record<string, { id: string; prenom: string; nom: string }> = {}
@@ -67,30 +66,34 @@ export default async function ParticulierChatPage({
       : 'Artisan'
   )
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const projetTitre = (conversation.projets as any)?.titre ?? ''
+
   return (
-    <div className="flex h-[calc(100vh-2rem)] flex-col mx-auto max-w-3xl px-4 py-4">
+    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-3xl flex-col px-4 py-5 md:h-[calc(100vh-1rem)]">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-gray-200 pb-4 mb-0">
+      <div className="flex items-center gap-3 rounded-t-ac border border-b-0 border-ac-border bg-ac-surface px-5 py-3.5">
         <Link
           href="/particulier/conversations"
-          className="text-sm text-blue-600 hover:underline"
+          className="shrink-0 text-sm font-semibold text-ac-text-sub transition-colors hover:text-ac-primary-text"
         >
-          &larr; Retour
+          ←
         </Link>
-        <div className="flex-1 min-w-0">
-          <h1 className="font-semibold truncate">{interlocuteurNom}</h1>
-          <p className="text-xs text-gray-500 truncate">
-            {(conversation.projets as any)?.titre}
-          </p>
+        <Avatar name={interlocuteurNom} size={38} />
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-bold text-ac-text">{interlocuteurNom}</h1>
+          <p className="truncate text-xs text-ac-text-muted">{projetTitre}</p>
         </div>
       </div>
 
       {/* Chat */}
-      <ChatRoom
-        conversationId={id}
-        currentUserId={user.id}
-        participants={participants}
-      />
+      <div className="flex flex-1 min-h-0 flex-col rounded-b-ac border border-t-0 border-ac-border bg-ac-bg">
+        <ChatRoom
+          conversationId={id}
+          currentUserId={user.id}
+          participants={participants}
+        />
+      </div>
     </div>
   )
 }

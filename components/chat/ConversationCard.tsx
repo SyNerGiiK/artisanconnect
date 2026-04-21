@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Avatar from '@/components/ui/Avatar'
 
 type ConversationCardProps = {
   id: string
@@ -29,36 +30,34 @@ export default function ConversationCard({
       })
     : null
 
+  const displayName = interlocuteurEntreprise ?? interlocuteurNom
+
   return (
     <Link
       href={href}
-      className="group flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-lg hover:ring-blue-200"
+      className="group flex items-start gap-3.5 rounded-ac border border-ac-border bg-ac-surface p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:border-ac-primary-border hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)]"
     >
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 font-bold text-base transition-colors group-hover:bg-blue-600 group-hover:text-white">
-        {interlocuteurNom.charAt(0).toUpperCase()}
-      </div>
+      <Avatar name={displayName} size={44} />
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2 mb-1">
-          <h3 className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
-            {interlocuteurEntreprise ?? interlocuteurNom}
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <h3 className="truncate font-bold text-ac-text transition-colors group-hover:text-ac-primary-text">
+            {displayName}
           </h3>
           {formattedDate && (
-            <span className="shrink-0 text-xs text-gray-400">
-              {formattedDate}
-            </span>
+            <span className="shrink-0 text-xs text-ac-text-muted">{formattedDate}</span>
           )}
         </div>
 
-        <p className="text-xs text-gray-500 mb-1.5 font-medium">{projetTitre}</p>
+        <p className="mb-1 text-xs font-semibold text-ac-text-muted">{projetTitre}</p>
 
         {lastMessage && (
-          <p className="text-sm text-gray-600 truncate">{lastMessage}</p>
+          <p className="truncate text-sm text-ac-text-sub">{lastMessage}</p>
         )}
       </div>
 
       {unreadCount > 0 && (
-        <span className="shrink-0 flex h-6 min-w-6 items-center justify-center rounded-full bg-blue-600 px-2 text-xs font-bold text-white shadow-lg shadow-blue-200">
+        <span className="flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-ac-primary px-2 text-xs font-bold text-white">
           {unreadCount}
         </span>
       )}

@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { updateProjectStatus } from '@/app/particulier/projet/[id]/actions'
+import Button from '@/components/ui/Button'
 
 export default function ProjectStatusActions({
   projetId,
-  currentStatut
+  currentStatut,
 }: {
-  projetId: string;
+  projetId: string
   currentStatut: string
 }) {
   const [loading, setLoading] = useState(false)
@@ -17,9 +18,12 @@ export default function ProjectStatusActions({
 
   const handleUpdate = async (newStatut: 'en_cours' | 'annule' | 'termine') => {
     const confirmMessages: Record<string, string> = {
-      annule: 'Êtes-vous sûr de vouloir annuler ce projet ? Il sera définitivement retiré.',
-      en_cours: 'Avez-vous trouvé un artisan pour ce projet ? Il sera retiré de la liste publique.',
-      termine: 'Confirmez-vous que les travaux sont terminés ? Le projet sera clôturé définitivement.',
+      annule:
+        'Êtes-vous sûr de vouloir annuler ce projet ? Il sera définitivement retiré.',
+      en_cours:
+        'Avez-vous trouvé un artisan pour ce projet ? Il sera retiré de la liste publique.',
+      termine:
+        'Confirmez-vous que les travaux sont terminés ? Le projet sera clôturé définitivement.',
     }
     if (!confirm(confirmMessages[newStatut])) return
 
@@ -33,48 +37,52 @@ export default function ProjectStatusActions({
   }
 
   return (
-    <div className="mt-8 flex flex-col gap-3 rounded-lg border border-blue-100 bg-blue-50/50 p-5">
-      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+    <div className="mt-6 flex flex-col gap-2.5 rounded-ac border border-ac-primary-border bg-ac-primary-light/60 p-5">
+      {error && <p className="text-sm font-medium text-ac-red">{error}</p>}
 
       {currentStatut === 'ouvert' && (
         <>
-          <h3 className="font-semibold text-blue-900">Ce projet n&apos;est plus d&apos;actualité ?</h3>
-          <p className="text-sm text-blue-800 mb-1">
+          <h3 className="font-bold text-ac-text">
+            Ce projet n&apos;est plus d&apos;actualité ?
+          </h3>
+          <p className="mb-1 text-[13px] text-ac-text-sub">
             Clôturez ce projet pour qu&apos;il n&apos;apparaisse plus sur le marché des artisans.
           </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <button
+          <div className="mt-1 flex flex-wrap items-center gap-2.5">
+            <Button
+              variant="green"
+              size="sm"
               onClick={() => handleUpdate('en_cours')}
               disabled={loading}
-              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50"
             >
-              {loading ? 'Mise à jour...' : "✅ J'ai trouvé mon artisan"}
-            </button>
-            <button
+              {loading ? 'Mise à jour…' : "✅ J'ai trouvé mon artisan"}
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
               onClick={() => handleUpdate('annule')}
               disabled={loading}
-              className="rounded-lg border border-red-200 bg-white text-red-700 px-4 py-2 text-sm font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
             >
-              {loading ? 'Mise à jour...' : "❌ Annuler la demande"}
-            </button>
+              {loading ? 'Mise à jour…' : '❌ Annuler la demande'}
+            </Button>
           </div>
         </>
       )}
 
       {currentStatut === 'en_cours' && (
         <>
-          <h3 className="font-semibold text-blue-900">Les travaux sont terminés ?</h3>
-          <p className="text-sm text-blue-800 mb-1">
+          <h3 className="font-bold text-ac-text">Les travaux sont terminés ?</h3>
+          <p className="mb-1 text-[13px] text-ac-text-sub">
             Marquez ce chantier comme terminé pour clore définitivement le projet.
           </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <button
+          <div className="mt-1 flex flex-wrap items-center gap-2.5">
+            <Button
+              size="sm"
               onClick={() => handleUpdate('termine')}
               disabled={loading}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
-              {loading ? 'Mise à jour...' : "🏁 Marquer comme terminé"}
-            </button>
+              {loading ? 'Mise à jour…' : '🏁 Marquer comme terminé'}
+            </Button>
           </div>
         </>
       )}

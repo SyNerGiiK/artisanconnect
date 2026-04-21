@@ -2,6 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import StatusBadge from '@/components/ui/StatusBadge'
+import Card from '@/components/ui/Card'
+import Tag from '@/components/ui/Tag'
+import Avatar from '@/components/ui/Avatar'
+import Button from '@/components/ui/Button'
+import EmptyState from '@/components/ui/EmptyState'
 import ReponseActions from '@/components/projects/ReponseActions'
 import ProjectStatusActions from '@/components/projects/ProjectStatusActions'
 import ProjetBoostOptions from '@/components/projects/ProjetBoostOptions'
@@ -26,7 +31,6 @@ export default async function ProjetDetailPage({
 
   if (!particulier) redirect('/particulier/onboarding')
 
-  // Parallel: project details + responses + conversations
   const [projetRes, reponsesRes, convsRes] = await Promise.all([
     supabase
       .from('projets')
@@ -66,133 +70,153 @@ export default async function ProjetDetailPage({
   })
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-6">
-        <Link
-          href="/particulier/dashboard"
-          className="text-sm text-blue-600 hover:underline"
-        >
-          &larr; Retour au tableau de bord
-        </Link>
-      </div>
+    <div className="mx-auto max-w-[860px] px-7 py-8">
+      <Link
+        href="/particulier/dashboard"
+        className="mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-ac-text-sub transition-colors hover:text-ac-primary"
+      >
+        ← Mes projets
+      </Link>
 
-      {/* Project details */}
-      <div className="rounded-lg border border-gray-200 p-6 mb-8">
-        <div className="flex items-start justify-between mb-4">
-          <h1 className="text-2xl font-bold">{projet.titre}</h1>
-          <StatusBadge statut={projet.statut} />
+      <Card className="mb-5 p-7 sm:p-8">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              {projet.categories_metiers && (
+                <Tag color="primary">{projet.categories_metiers.libelle}</Tag>
+              )}
+              <StatusBadge statut={projet.statut} />
+            </div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-ac-text">
+              {projet.titre}
+            </h1>
+          </div>
         </div>
 
-        <p className="text-gray-700 mb-4 whitespace-pre-line">
+        <p className="mb-4 whitespace-pre-line text-sm leading-relaxed text-ac-text-sub">
           {projet.description}
         </p>
 
-        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-          {projet.categories_metiers && (
-            <span>{projet.categories_metiers.libelle}</span>
-          )}
-          <span>
-            {projet.ville} ({projet.code_postal})
+        <div className="flex flex-wrap gap-2 text-xs text-ac-text-muted">
+          <span className="inline-flex items-center gap-1 rounded-full border border-ac-border bg-ac-surface-hover px-2.5 py-0.5 font-semibold">
+            📍 {projet.ville} ({projet.code_postal})
           </span>
-          <span>Publié le {formattedDate}</span>
+          <span className="inline-flex items-center gap-1 rounded-full border border-ac-border bg-ac-surface-hover px-2.5 py-0.5 font-semibold">
+            📅 Publié le {formattedDate}
+          </span>
         </div>
 
         <ProjectStatusActions projetId={projet.id} currentStatut={projet.statut} />
 
-        {/* Photos */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {(projet as any).photos_unlocked && (
           <PhotoUploader
             projetId={projet.id}
+            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
             existingPhotos={(projet as any).photos ?? []}
           />
         )}
-      </div>
+      </Card>
 
-      {/* Boost options — only for active projects */}
       {(projet.statut === 'ouvert' || projet.statut === 'en_cours') && (
         <ProjetBoostOptions
           projetId={projet.id}
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           isBoosted={(projet as any).is_boosted ?? false}
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           isUrgent={(projet as any).is_urgent ?? false}
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           photosUnlocked={(projet as any).photos_unlocked ?? false}
         />
       )}
 
-      {/* Responses */}
-      <h2 className="text-lg font-semibold mb-4">
-        Réponses ({reponses?.length ?? 0}/3)
+      <h2 className="mb-4 text-lg font-bold text-ac-text">
+        Réponses reçues{' '}
+        <span className="font-normal text-ac-text-muted text-sm">
+          ({reponses?.length ?? 0}/3)
+        </span>
       </h2>
 
       {!reponses || reponses.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-500">
-          Aucun artisan n&apos;a encore répondu à ce projet.
-        </div>
+        <Card padded>
+          <EmptyState
+            icon="📬"
+            title="Aucune réponse pour l'instant"
+            desc="Les artisans de votre zone seront notifiés. Revenez bientôt !"
+          />
+        </Card>
       ) : (
-        <div className="space-y-4">
-          {reponses.map((reponse) => (
-            <div
-              key={reponse.id}
-              className="rounded-lg border border-gray-200 p-5"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="font-semibold">
-                    {reponse.artisans?.nom_entreprise ?? 'Artisan'}
-                  </h3>
-                  {reponse.artisans?.code_postal_base && (
-                    <p className="text-xs text-gray-500">
-                      Basé à {reponse.artisans.code_postal_base}
-                    </p>
-                  )}
+        <div className="flex flex-col gap-3.5">
+          {reponses.map((reponse) => {
+            const wrapperBg =
+              reponse.statut === 'acceptee'
+                ? 'bg-ac-green-light border-ac-green-border'
+                : reponse.statut === 'refusee'
+                  ? 'bg-ac-red-light border-red-300'
+                  : 'bg-ac-surface border-ac-border'
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const artisanId = (reponse.artisans as any)?.id
+            const convId = artisanId ? convMap.get(artisanId) : undefined
+
+            return (
+              <Card
+                key={reponse.id}
+                className={`p-5 sm:p-6 border-[1.5px] ${wrapperBg}`}
+              >
+                <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      name={reponse.artisans?.nom_entreprise ?? 'Artisan'}
+                      size={42}
+                    />
+                    <div>
+                      <div className="text-[15px] font-bold text-ac-text">
+                        {reponse.artisans?.nom_entreprise ?? 'Artisan'}
+                      </div>
+                      {reponse.artisans?.code_postal_base && (
+                        <div className="text-xs text-ac-text-muted">
+                          Basé à {reponse.artisans.code_postal_base}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <StatusBadge statut={reponse.statut} />
                 </div>
-                <StatusBadge statut={reponse.statut} />
-              </div>
 
-              {reponse.artisans?.description && (
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                  {reponse.artisans.description}
+                {reponse.artisans?.description && (
+                  <p className="mb-3 line-clamp-2 text-sm text-ac-text-sub">
+                    {reponse.artisans.description}
+                  </p>
+                )}
+
+                <div className="mb-3.5 rounded-ac-sm bg-ac-bg px-4 py-3">
+                  <p className="text-sm italic leading-relaxed text-ac-text-sub">
+                    «&nbsp;{reponse.message_initial}&nbsp;»
+                  </p>
+                </div>
+
+                <p className="mb-3 text-xs text-ac-text-muted">
+                  Reçue le{' '}
+                  {new Date(reponse.created_at).toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
                 </p>
-              )}
 
-              <div className="rounded-lg bg-gray-50 p-3 mb-3">
-                <p className="text-sm text-gray-700 italic">
-                  &laquo; {reponse.message_initial} &raquo;
-                </p>
-              </div>
+                {reponse.statut === 'en_attente' && (
+                  <ReponseActions reponseId={reponse.id} projetId={projet.id} />
+                )}
 
-              <p className="text-xs text-gray-400 mb-3">
-                Reçue le{' '}
-                {new Date(reponse.created_at).toLocaleDateString('fr-FR', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </p>
-
-              {reponse.statut === 'en_attente' && (
-                <ReponseActions
-                  reponseId={reponse.id}
-                  projetId={projet.id}
-                />
-              )}
-
-              {reponse.statut === 'acceptee' && (() => {
-                const artisanId = (reponse.artisans as any)?.id
-                const convId = artisanId ? convMap.get(artisanId) : undefined
-                return convId ? (
-                  <Link
-                    href={`/particulier/conversations/${convId}`}
-                    className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-                  >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    Envoyer un message
-                  </Link>
-                ) : null
-              })()}
-            </div>
-          ))}
+                {reponse.statut === 'acceptee' && convId && (
+                  <Button href={`/particulier/conversations/${convId}`} size="sm">
+                    💬 Ouvrir la conversation →
+                  </Button>
+                )}
+              </Card>
+            )
+          })}
         </div>
       )}
     </div>

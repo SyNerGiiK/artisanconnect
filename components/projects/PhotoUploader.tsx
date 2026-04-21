@@ -46,15 +46,14 @@ export default function PhotoUploader({ projetId, existingPhotos }: Props) {
   }
 
   return (
-    <div className="mt-5 pt-5 border-t border-gray-100">
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="text-sm font-semibold text-gray-800">Photos du projet ({photos.length}/5)</h4>
+    <div className="mt-5 pt-5 border-t border-ac-border">
+      <div className="mb-3 flex items-center justify-between">
+        <h4 className="text-sm font-bold text-ac-text">
+          Photos du projet ({photos.length}/5)
+        </h4>
         {photos.length < 5 && (
-          <label className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg bg-gray-800 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-900 transition-colors">
-            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            {uploading ? 'Upload...' : 'Ajouter'}
+          <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-ac-sm bg-ac-text px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90">
+            + {uploading ? 'Upload…' : 'Ajouter'}
             <input
               ref={inputRef}
               type="file"
@@ -67,16 +66,20 @@ export default function PhotoUploader({ projetId, existingPhotos }: Props) {
         )}
       </div>
 
-      {error && <p className="text-xs text-red-600 mb-2">{error}</p>}
+      {error && <p className="mb-2 text-xs text-ac-red">{error}</p>}
 
       {photos.length > 0 ? (
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {photos.map((url) => (
-            <div key={url} className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100">
+            <div
+              key={url}
+              className="group relative aspect-square overflow-hidden rounded-ac-sm bg-ac-surface-hover"
+            >
               <Image src={url} alt="Photo projet" fill className="object-cover" sizes="120px" />
               <button
+                type="button"
                 onClick={() => handleDelete(url)}
-                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium"
+                className="absolute inset-0 flex items-center justify-center bg-black/50 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100"
               >
                 Supprimer
               </button>
@@ -84,7 +87,9 @@ export default function PhotoUploader({ projetId, existingPhotos }: Props) {
           ))}
         </div>
       ) : (
-        <p className="text-xs text-gray-400">Aucune photo ajoutée. Cliquez sur &quot;Ajouter&quot; pour illustrer vos travaux.</p>
+        <p className="text-xs text-ac-text-muted">
+          Aucune photo ajoutée. Cliquez sur «&nbsp;Ajouter&nbsp;» pour illustrer vos travaux.
+        </p>
       )}
     </div>
   )

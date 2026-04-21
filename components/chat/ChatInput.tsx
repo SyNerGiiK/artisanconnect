@@ -32,14 +32,14 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        placeholder="Votre message..."
+        placeholder="Votre message…"
         rows={1}
-        className="flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+        className="flex-1 resize-none rounded-ac-sm border border-ac-border bg-ac-surface px-3.5 py-2.5 text-sm text-ac-text placeholder:text-ac-text-muted focus:border-ac-primary focus:outline-none focus:ring-2 focus:ring-ac-primary/20 disabled:opacity-50"
       />
       <button
         type="submit"
         disabled={disabled || !message.trim()}
-        className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+        className="shrink-0 rounded-ac-sm bg-ac-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-ac-primary-dark hover:shadow-[0_4px_14px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:hover:shadow-none"
       >
         Envoyer
       </button>

@@ -8,8 +8,11 @@ Abonnement fixe pour les pros, zéro commission, maximum 3 artisans par chantier
 | Couche | Technologie |
 |---|---|
 | Frontend | Next.js 16 (App Router) + TypeScript |
-| Styling | Tailwind CSS v4 |
+| Styling | Tailwind CSS v4 + Design System « Pro Sombre » |
+| UI Components | Button, Card, Input, Avatar, Tag, StatusBadge, AlertBanner… |
+| Typography | DM Sans (Google Fonts) |
 | Backend / BDD | Supabase (PostgreSQL + Auth + Realtime) |
+| Paiement | Stripe Billing (abonnements) |
 | Hébergement | Vercel |
 
 ## Démarrage rapide
@@ -101,8 +104,22 @@ components/
 ├── projects/
 │   ├── ProjectCard.tsx              # Carte de projet (dashboard particulier)
 │   └── ReponseActions.tsx           # Boutons accepter/refuser une réponse
+├── layout/
+│   └── Sidebar.tsx                  # Sidebar navigation (dark navy, role toggle)
 └── ui/
-    └── StatusBadge.tsx              # Badge de statut coloré (ouvert, en_attente...)
+    ├── AlertBanner.tsx               # Bannière warning/info/success
+    ├── Avatar.tsx                    # Avatar avec initiales
+    ├── Button.tsx                    # Bouton multi-variantes (primary, secondary, ghost…)
+    ├── Card.tsx                      # Conteneur avec border, shadow, hover
+    ├── Divider.tsx                   # Séparateur horizontal
+    ├── EmptyState.tsx                # Placeholder liste vide
+    ├── Input.tsx                     # Champ texte avec label et focus ring
+    ├── Skeleton.tsx                  # Loading placeholder animé
+    ├── Stars.tsx                     # Affichage note étoiles
+    ├── StatusBadge.tsx               # Badge de statut coloré (ouvert, en_attente...)
+    ├── Tag.tsx                       # Pill badge (catégorie, localisation)
+    ├── Textarea.tsx                  # Zone texte multi-lignes
+    └── TopProgressBar.tsx            # Barre de progression navigation
 
 lib/
 ├── supabase/
@@ -168,4 +185,5 @@ docs/                                # Documentation technique
 - [x] **Phase 6** — Profils & RGPD
 - [x] **Phase 7** — Polissage & Dashboard Expert
 - [x] **Phase 7.5** — MVP Trous fonctionnels (Clôture projet, MDP Oublié)
-- [ ] **Phase 8** — Monétisation (Stripe Stripe Billing)
+- [x] **Phase 8** — Monétisation (Stripe Billing)
+- [x] **Phase 9** — Design System (prototype → implémentation complète)

@@ -47,6 +47,53 @@ Trois clients selon le contexte d'exécution :
 | Server | `lib/supabase/server.ts` | Server Components, Server Actions, Route Handlers |
 | Proxy | `lib/supabase/middleware.ts` | Uniquement dans `proxy.ts` pour le refresh de session |
 
+## Design System
+
+### Thème « Pro Sombre »
+
+Le design system est basé sur le prototype `proto/ArtisanConnect.html` (thème **Pro Sombre**).
+Les tokens CSS sont définis dans `app/globals.css` et exposés à Tailwind via `@theme inline`.
+
+| Catégorie | Variables | Exemple |
+|---|---|---|
+| Surface | `--ac-bg`, `--ac-surface`, `--ac-surface-hover` | `#f1f5f9`, `#ffffff` |
+| Texte | `--ac-text`, `--ac-text-sub`, `--ac-text-muted` | `#0f172a`, `#475569` |
+| Primary (blue) | `--ac-primary`, `--ac-primary-dark`, `--ac-primary-light` | `#3b82f6`, `#2563eb` |
+| Accents | `--ac-green`, `--ac-amber`, `--ac-red` + variants | Statuts, badges |
+| Sidebar (navy) | `--ac-nav-bg`, `--ac-nav-text`, `--ac-nav-active` | `#0f172a` |
+| Shape | `--ac-radius`, `--ac-radius-sm`, `--ac-radius-lg` | `8px`, `6px`, `12px` |
+
+### Composants UI (`components/ui/`)
+
+| Composant | Fichier | Usage |
+|---|---|---|
+| `Button` | `Button.tsx` | Variantes: primary, secondary, ghost, green, amber, danger |
+| `Card` | `Card.tsx` | Conteneur avec border, shadow, hover optionnel |
+| `Input` | `Input.tsx` | Champ texte avec label, focus ring, variantes |
+| `Textarea` | `Textarea.tsx` | Zone texte multi-lignes |
+| `Avatar` | `Avatar.tsx` | Initiales avec couleur de fond |
+| `Tag` | `Tag.tsx` | Pill badge (catégorie, localisation) |
+| `StatusBadge` | `StatusBadge.tsx` | Badge statut (ouvert, en_cours, terminé, etc.) |
+| `AlertBanner` | `AlertBanner.tsx` | Bannière warning/info/success |
+| `EmptyState` | `EmptyState.tsx` | Placeholder quand une liste est vide |
+| `Stars` | `Stars.tsx` | Affichage note étoiles |
+| `Divider` | `Divider.tsx` | Séparateur horizontal |
+| `Skeleton` | `Skeleton.tsx` | Loading placeholder animé |
+
+### Layout Sidebar (`components/layout/Sidebar.tsx`)
+
+- Sidebar fixe (220px) avec fond navy (`--ac-nav-bg`)
+- Logo ArtisanConnect, toggle artisan/particulier
+- Navigation contextuelle selon le rôle
+- Footer avec avatar utilisateur + déconnexion
+- Responsive : drawer mobile avec overlay
+
+### Typographie
+
+- **Corps** : DM Sans (Google Fonts)
+- **Titres** : DM Sans (weight 700/800)
+- **Display** : Playfair Display (optionnel, thème Artisan Chaud)
+
 ## Base de données
 
 ### Schéma

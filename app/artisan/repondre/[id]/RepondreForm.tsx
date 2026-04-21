@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { submitReponse } from './actions'
+import Textarea from '@/components/ui/Textarea'
+import Button from '@/components/ui/Button'
+import AlertBanner from '@/components/ui/AlertBanner'
 
 export default function RepondreForm({ projetId }: { projetId: string }) {
   const [error, setError] = useState<string | null>(null)
@@ -18,34 +21,22 @@ export default function RepondreForm({ projetId }: { projetId: string }) {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-6">
-      <div>
-        <label htmlFor="message_initial" className="block text-sm font-medium text-gray-700 mb-2">
-          Votre message *
-        </label>
-        <textarea
-          id="message_initial"
-          name="message_initial"
-          required
-          rows={5}
-          placeholder="Bonjour, je suis disponible pour réaliser vos travaux. Voici ce que je propose..."
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
-        />
-      </div>
+    <form action={handleSubmit} className="flex flex-col gap-5">
+      <Textarea
+        id="message_initial"
+        name="message_initial"
+        required
+        rows={6}
+        label="Votre message"
+        hint="Présentez-vous, vos qualifications et un premier ordre d'idée de tarif."
+        placeholder="Bonjour, je suis disponible pour réaliser vos travaux. Voici ce que je propose…"
+      />
 
-      {error && (
-        <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600 ring-1 ring-red-200">
-          {error}
-        </div>
-      )}
+      {error && <AlertBanner kind="error" title={error} />}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-[1.02] disabled:bg-gray-300 disabled:shadow-none disabled:hover:scale-100"
-      >
-        {loading ? 'Envoi en cours...' : 'Envoyer ma réponse'}
-      </button>
+      <Button type="submit" disabled={loading} size="lg" full>
+        {loading ? 'Envoi en cours…' : 'Envoyer ma réponse'}
+      </Button>
     </form>
   )
 }

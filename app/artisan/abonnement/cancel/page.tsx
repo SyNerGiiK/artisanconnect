@@ -1,27 +1,42 @@
-import Link from 'next/link'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
 
 export default function AbonnementCancelPage() {
   return (
-    <div className="flex min-h-[80vh] flex-col justify-center items-center px-6 py-12">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl ring-1 ring-gray-100 p-8 text-center animate-in zoom-in-95 duration-200">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 mb-6">
-          <svg className="h-10 w-10 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    <div className="flex min-h-[80vh] items-center justify-center px-6 py-12">
+      <Card className="w-full max-w-md p-8 text-center">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-ac-amber-light ring-4 ring-ac-amber-border/50">
+          <svg
+            className="h-10 w-10 text-ac-amber"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
           </svg>
         </div>
-        
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Paiement annulé</h1>
-        <p className="text-gray-600 text-lg mb-8">
-          Vous n'avez pas finalisé votre abonnement. L'accès Premium aux chantiers reste bloqué.
+
+        <h1 className="mb-3 text-2xl font-extrabold tracking-tight text-ac-text">
+          Paiement annulé
+        </h1>
+        <p className="mb-7 text-sm text-ac-text-sub">
+          Vous n&apos;avez pas finalisé votre abonnement. L&apos;accès Premium aux chantiers reste bloqué.
         </p>
 
-        <Link 
-          href="/artisan/feed"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-100 border border-gray-200 w-full py-4 text-sm font-bold text-gray-800 shadow-sm transition-all hover:bg-gray-200"
-        >
-          Retour au tableau de bord
-        </Link>
-      </div>
+        <div className="flex flex-col gap-2">
+          <Button href="/artisan/abonnement" size="lg" full>
+            Reprendre l&apos;abonnement
+          </Button>
+          <Button href="/artisan/feed" variant="secondary" size="md" full>
+            Retour au tableau de bord
+          </Button>
+        </div>
+      </Card>
     </div>
   )
 }

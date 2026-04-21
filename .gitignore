@@ -43,6 +43,9 @@ yarn-error.log*
 .mcp.json
 skills-lock.json
 
+# Gemini CLI
+.gemini/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

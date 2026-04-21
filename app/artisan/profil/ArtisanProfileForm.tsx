@@ -4,16 +4,30 @@ import { useState } from 'react'
 import { updateArtisanProfile } from './actions'
 import { deleteUserAccount } from '@/app/(auth)/rgpd-actions'
 import type { CategorieMetier } from '@/lib/types/database.types'
+import Card from '@/components/ui/Card'
+import Input from '@/components/ui/Input'
+import Textarea from '@/components/ui/Textarea'
+import Button from '@/components/ui/Button'
+import AlertBanner from '@/components/ui/AlertBanner'
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profile: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   artisan: any
   allCategories: CategorieMetier[]
   initialSelectedCategories: number[]
 }
 
-export default function ArtisanProfileForm({ profile, artisan, allCategories, initialSelectedCategories }: Props) {
-  const [selectedCategories, setSelectedCategories] = useState<number[]>(initialSelectedCategories)
+export default function ArtisanProfileForm({
+  profile,
+  artisan,
+  allCategories,
+  initialSelectedCategories,
+}: Props) {
+  const [selectedCategories, setSelectedCategories] = useState<number[]>(
+    initialSelectedCategories
+  )
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -36,185 +50,186 @@ export default function ArtisanProfileForm({ profile, artisan, allCategories, in
     setError(null)
     setSuccess(false)
 
-    selectedCategories.forEach((id) => {
-      formData.append('categorie_ids', String(id))
-    })
-
-    if (artisan.slug) {
-      formData.append('slug', artisan.slug)
-    }
+    selectedCategories.forEach((id) => formData.append('categorie_ids', String(id)))
+    if (artisan.slug) formData.append('slug', artisan.slug)
 
     const result = await updateArtisanProfile(formData)
-    if (result?.error) {
-      setError(result.error)
-    } else {
-      setSuccess(true)
-    }
+    if (result?.error) setError(result.error)
+    else setSuccess(true)
     setLoading(false)
   }
 
   return (
-    <div className="space-y-4">
-      <form action={handleSubmit} className="space-y-4">
-
+    <div className="flex flex-col gap-5">
+      <form action={handleSubmit} className="flex flex-col gap-5">
         {/* Coordonnées personnelles */}
-        <div className="rounded-xl bg-gray-50 p-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-4">Mes coordonnées personnelles</h2>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label htmlFor="prenom" className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
-              <input
-                id="prenom" name="prenom" type="text"
-                required defaultValue={profile.prenom || ''}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="nom" className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-              <input
-                id="nom" name="nom" type="text"
-                required defaultValue={profile.nom || ''}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="telephone" className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-            <input
-              id="telephone" name="telephone" type="tel"
-              defaultValue={profile.telephone || ''}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        <Card className="p-6">
+          <h2 className="mb-4 text-[15px] font-bold text-ac-text">
+            Mes coordonnées personnelles
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              id="prenom"
+              name="prenom"
+              type="text"
+              required
+              label="Prénom"
+              defaultValue={profile.prenom || ''}
+            />
+            <Input
+              id="nom"
+              name="nom"
+              type="text"
+              required
+              label="Nom"
+              defaultValue={profile.nom || ''}
             />
           </div>
-        </div>
+          <div className="mt-4">
+            <Input
+              id="telephone"
+              name="telephone"
+              type="tel"
+              label="Téléphone"
+              defaultValue={profile.telephone || ''}
+            />
+          </div>
+        </Card>
 
         {/* Informations entreprise */}
-        <div className="rounded-xl bg-gray-50 p-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-4">Informations de l&apos;entreprise</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="nom_entreprise" className="block text-sm font-medium text-gray-700 mb-1">
-                Nom de l&apos;entreprise <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="nom_entreprise" name="nom_entreprise" type="text"
-                required defaultValue={artisan.nom_entreprise || ''}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        <Card className="p-6">
+          <h2 className="mb-4 text-[15px] font-bold text-ac-text">
+            Informations de l&apos;entreprise
+          </h2>
+          <div className="flex flex-col gap-4">
+            <Input
+              id="nom_entreprise"
+              name="nom_entreprise"
+              type="text"
+              required
+              label="Nom de l'entreprise"
+              defaultValue={artisan.nom_entreprise || ''}
+            />
+            <Input
+              id="siret"
+              name="siret"
+              type="text"
+              maxLength={14}
+              pattern="\d{14}"
+              label="SIRET"
+              hint="14 chiffres sans espaces"
+              defaultValue={artisan.siret || ''}
+            />
+            <Textarea
+              id="description"
+              name="description"
+              rows={4}
+              label="Description de votre activité"
+              defaultValue={artisan.description || ''}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                id="code_postal_base"
+                name="code_postal_base"
+                type="text"
+                required
+                maxLength={5}
+                pattern="\d{5}"
+                label="Code postal de base"
+                defaultValue={artisan.code_postal_base || ''}
               />
-            </div>
-            <div>
-              <label htmlFor="siret" className="block text-sm font-medium text-gray-700 mb-1">SIRET</label>
-              <input
-                id="siret" name="siret" type="text"
-                maxLength={14} pattern="\d{14}"
-                defaultValue={artisan.siret || ''}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              <Input
+                id="rayon_km"
+                name="rayon_km"
+                type="number"
+                min={1}
+                max={200}
+                label="Rayon d'action (km)"
+                defaultValue={artisan.rayon_km || 30}
               />
-            </div>
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description de votre activité</label>
-              <textarea
-                id="description" name="description" rows={4}
-                defaultValue={artisan.description || ''}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="code_postal_base" className="block text-sm font-medium text-gray-700 mb-1">
-                  Code postal de base <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="code_postal_base" name="code_postal_base" type="text"
-                  required maxLength={5} pattern="\d{5}"
-                  defaultValue={artisan.code_postal_base || ''}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="rayon_km" className="block text-sm font-medium text-gray-700 mb-1">Rayon d&apos;action (km)</label>
-                <input
-                  id="rayon_km" name="rayon_km" type="number"
-                  min={1} max={200}
-                  defaultValue={artisan.rayon_km || 30}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Corps de métier */}
-        <div className="rounded-xl bg-gray-50 p-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-1">Corps de métier</h2>
-          <p className="text-xs text-gray-500 mb-4">Sélectionnez au moins un domaine d&apos;intervention.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {allCategories.map((cat) => (
-              <label
-                key={cat.id}
-                className={`flex cursor-pointer items-center rounded-lg border p-3 transition-colors ${
-                  selectedCategories.includes(cat.id)
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.includes(cat.id)}
-                  onChange={() => toggleCategory(cat.id)}
-                  className="mr-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm font-medium">{cat.libelle}</span>
-              </label>
-            ))}
+        <Card className="p-6">
+          <h2 className="mb-1 text-[15px] font-bold text-ac-text">
+            Corps de métier
+          </h2>
+          <p className="mb-4 text-xs text-ac-text-muted">
+            Sélectionnez au moins un domaine d&apos;intervention.
+          </p>
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {allCategories.map((cat) => {
+              const active = selectedCategories.includes(cat.id)
+              return (
+                <label
+                  key={cat.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-ac-sm border-[1.5px] p-3 transition-all ${
+                    active
+                      ? 'border-ac-primary bg-ac-primary-light text-ac-primary-text'
+                      : 'border-ac-border bg-ac-surface text-ac-text hover:border-ac-primary-border hover:bg-ac-surface-hover'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={active}
+                    onChange={() => toggleCategory(cat.id)}
+                    className="h-4 w-4 rounded border-ac-border text-ac-primary focus:ring-ac-primary"
+                  />
+                  <span className="text-sm font-semibold">{cat.libelle}</span>
+                </label>
+              )
+            })}
           </div>
-        </div>
+        </Card>
 
-        {error && <p className="text-sm text-red-600 bg-red-50 border border-red-100 p-3 rounded-lg">{error}</p>}
-        {success && <p className="text-sm text-green-700 bg-green-50 border border-green-100 p-3 rounded-lg">Profil mis à jour avec succès !</p>}
+        {error && <AlertBanner kind="error" title={error} />}
+        {success && (
+          <AlertBanner kind="success" title="Profil mis à jour avec succès !" />
+        )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 transition-colors"
-        >
-          {loading ? 'Enregistrement en cours...' : 'Enregistrer toutes les modifications'}
-        </button>
+        <Button type="submit" disabled={loading} size="lg" full>
+          {loading ? 'Enregistrement…' : 'Enregistrer toutes les modifications'}
+        </Button>
       </form>
 
       {/* Danger zone */}
-      <div className="rounded-xl border border-red-100 bg-red-50/40 p-5 mt-2">
-        <h3 className="text-sm font-semibold text-red-700 mb-1">Zone de danger</h3>
-        <p className="text-xs text-gray-500 mb-4">
-          La suppression de votre compte est définitive. Votre profil public SEO et tout votre historique de conversation seront supprimés.
+      <Card className="border-[1.5px] border-red-200 bg-ac-red-light p-6">
+        <h3 className="mb-1 text-sm font-bold text-ac-red">Zone de danger</h3>
+        <p className="mb-4 text-xs text-ac-text-sub">
+          La suppression de votre compte est définitive. Votre profil public SEO
+          et tout votre historique de conversation seront supprimés.
         </p>
 
         {!deleteConfirm ? (
-          <button
+          <Button
             type="button"
+            variant="danger"
+            size="sm"
             onClick={() => setDeleteConfirm(true)}
-            className="text-sm text-red-600 border border-red-200 bg-white hover:bg-red-50 px-4 py-2 rounded-lg transition-colors"
           >
             Supprimer mon compte artisan
-          </button>
+          </Button>
         ) : (
-          <div className="space-y-3">
-            <p className="text-sm text-red-800 font-medium">Êtes-vous absolument sûr ? Cette action est immédiate et irréversible.</p>
-            <div>
-              <label htmlFor="deletePassword" className="block text-sm font-medium text-red-800 mb-1">Confirmez votre mot de passe</label>
-              <input
-                type="password"
-                id="deletePassword"
-                value={deletePassword}
-                onChange={(e) => setDeletePassword(e.target.value)}
-                className="w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
-                placeholder="Mot de passe"
-              />
-              {deleteError && <p className="mt-1 text-xs text-red-600">{deleteError}</p>}
-            </div>
-            <div className="flex gap-3">
-              <button
+          <div className="flex flex-col gap-3">
+            <p className="text-sm font-semibold text-ac-red">
+              Êtes-vous absolument sûr ? Cette action est immédiate et irréversible.
+            </p>
+            <Input
+              type="password"
+              id="deletePassword"
+              label="Confirmez votre mot de passe"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Mot de passe"
+              error={deleteError ?? undefined}
+            />
+            <div className="flex flex-wrap gap-2">
+              <Button
                 type="button"
+                variant="danger"
+                size="sm"
                 disabled={!deletePassword || loading}
                 onClick={async () => {
                   setLoading(true)
@@ -223,21 +238,25 @@ export default function ArtisanProfileForm({ profile, artisan, allCategories, in
                   if (res?.error) setDeleteError(res.error)
                   setLoading(false)
                 }}
-                className="text-sm bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-medium disabled:opacity-50"
               >
                 Oui, supprimer définitivement
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                onClick={() => { setDeleteConfirm(false); setDeletePassword(''); setDeleteError(null) }}
-                className="text-sm bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50"
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setDeleteConfirm(false)
+                  setDeletePassword('')
+                  setDeleteError(null)
+                }}
               >
                 Annuler
-              </button>
+              </Button>
             </div>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   )
 }

@@ -35,7 +35,7 @@ export async function uploadProjectPhoto(formData: FormData) {
 
   const { data: projet, error: projetError } = await supabase
     .from('projets')
-    .select('photos')
+    .select('id')
     .eq('id', projetId)
     .eq('particulier_id', particulier.id)
     .single()
@@ -60,9 +60,10 @@ export async function uploadProjectPhoto(formData: FormData) {
 
   const { data: { publicUrl } } = adminClient.storage.from('projet-photos').getPublicUrl(path)
 
+  // photos column added via migration — cast to bypass strict types until types are regenerated
   const { error: updateError } = await supabase
     .from('projets')
-    .update({ photos: [...existingPhotos, publicUrl] })
+    .update({ photos: [...existingPhotos, publicUrl] } as Record<string, unknown>)
     .eq('id', projetId)
     .eq('particulier_id', particulier.id)
 
@@ -89,7 +90,7 @@ export async function deleteProjectPhoto(projetId: string, photoUrl: string) {
 
   const { data: projet, error: projetError } = await supabase
     .from('projets')
-    .select('photos')
+    .select('id')
     .eq('id', projetId)
     .eq('particulier_id', particulier.id)
     .single()
@@ -100,7 +101,7 @@ export async function deleteProjectPhoto(projetId: string, photoUrl: string) {
 
   const { error } = await supabase
     .from('projets')
-    .update({ photos: newPhotos })
+    .update({ photos: newPhotos } as Record<string, unknown>)
     .eq('id', projetId)
     .eq('particulier_id', particulier.id)
 

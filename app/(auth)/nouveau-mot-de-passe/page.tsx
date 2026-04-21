@@ -2,67 +2,52 @@
 
 import { useActionState } from 'react'
 import { updatePassword } from './actions'
+import Card from '@/components/ui/Card'
+import Input from '@/components/ui/Input'
+import Button from '@/components/ui/Button'
+import AlertBanner from '@/components/ui/AlertBanner'
 
 export default function NouveauMotDePassePage() {
   const [state, formAction] = useActionState(updatePassword, null)
 
   return (
     <>
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+      <div className="mb-7 text-center">
+        <h1 className="text-[28px] font-extrabold tracking-tight text-ac-text">
           Nouveau mot de passe
         </h1>
-        <p className="mt-3 text-gray-600">
+        <p className="mt-2 text-sm text-ac-text-sub">
           Veuillez saisir votre nouveau mot de passe ci-dessous.
         </p>
       </div>
 
-      {/* Card */}
-      <div className="rounded-2xl bg-white p-8 shadow-xl ring-1 ring-gray-100">
-        <form action={formAction} className="space-y-5">
-          {state?.error && (
-            <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600 ring-1 ring-red-200">
-              {state.error}
-            </div>
-          )}
+      <Card className="p-7 sm:p-8">
+        <form action={formAction} className="flex flex-col gap-5">
+          {state?.error && <AlertBanner kind="error" title={state.error} />}
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Nouveau mot de passe
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
-              placeholder="Minimum 8 caracteres"
-            />
-          </div>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            required
+            label="Nouveau mot de passe"
+            placeholder="Minimum 8 caractères"
+          />
 
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Confirmer le mot de passe
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
-              placeholder="Confirmez votre mot de passe"
-            />
-          </div>
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            required
+            label="Confirmer le mot de passe"
+            placeholder="Confirmez votre mot de passe"
+          />
 
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-xl hover:scale-[1.02]"
-          >
-            Mettre a jour mon mot de passe
-          </button>
+          <Button type="submit" size="lg" full>
+            Mettre à jour mon mot de passe
+          </Button>
         </form>
-      </div>
+      </Card>
     </>
   )
 }

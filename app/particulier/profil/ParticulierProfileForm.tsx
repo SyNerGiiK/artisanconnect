@@ -3,9 +3,15 @@
 import { useState } from 'react'
 import { updateParticulierProfile } from './actions'
 import { deleteUserAccount } from '@/app/(auth)/rgpd-actions'
+import Card from '@/components/ui/Card'
+import Input from '@/components/ui/Input'
+import Button from '@/components/ui/Button'
+import AlertBanner from '@/components/ui/AlertBanner'
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profile: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   particulier: any
 }
 
@@ -23,127 +29,129 @@ export default function ParticulierProfileForm({ profile, particulier }: Props) 
     setSuccess(false)
 
     const result = await updateParticulierProfile(formData)
-    if (result?.error) {
-      setError(result.error)
-    } else {
-      setSuccess(true)
-    }
+    if (result?.error) setError(result.error)
+    else setSuccess(true)
     setLoading(false)
   }
 
   return (
-    <div className="space-y-4">
-      <form action={handleSubmit} className="space-y-4">
-
+    <div className="flex flex-col gap-5">
+      <form action={handleSubmit} className="flex flex-col gap-5">
         {/* Coordonnées */}
-        <div className="rounded-xl bg-gray-50 p-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-4">Mes coordonnées</h2>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label htmlFor="prenom" className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
-              <input
-                id="prenom" name="prenom" type="text"
-                required defaultValue={profile.prenom || ''}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="nom" className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-              <input
-                id="nom" name="nom" type="text"
-                required defaultValue={profile.nom || ''}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="telephone" className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-            <input
-              id="telephone" name="telephone" type="tel"
-              defaultValue={profile.telephone || ''}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        <Card className="p-6">
+          <h2 className="mb-4 text-[15px] font-bold text-ac-text">
+            Mes coordonnées
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              id="prenom"
+              name="prenom"
+              type="text"
+              required
+              label="Prénom"
+              defaultValue={profile.prenom || ''}
+            />
+            <Input
+              id="nom"
+              name="nom"
+              type="text"
+              required
+              label="Nom"
+              defaultValue={profile.nom || ''}
             />
           </div>
-        </div>
+          <div className="mt-4">
+            <Input
+              id="telephone"
+              name="telephone"
+              type="tel"
+              label="Téléphone"
+              defaultValue={profile.telephone || ''}
+            />
+          </div>
+        </Card>
 
         {/* Adresse */}
-        <div className="rounded-xl bg-gray-50 p-5">
-          <h2 className="text-base font-semibold text-gray-900 mb-1">Mon adresse</h2>
-          <p className="text-xs text-gray-500 mb-4">Optionnelle — facilitera la création de vos projets.</p>
+        <Card className="p-6">
+          <h2 className="mb-1 text-[15px] font-bold text-ac-text">Mon adresse</h2>
+          <p className="mb-4 text-xs text-ac-text-muted">
+            Optionnelle — facilitera la création de vos projets.
+          </p>
           <div className="mb-4">
-            <label htmlFor="adresse" className="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
-            <input
-              id="adresse" name="adresse" type="text"
+            <Input
+              id="adresse"
+              name="adresse"
+              type="text"
+              label="Adresse"
               defaultValue={particulier.adresse || ''}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="code_postal" className="block text-sm font-medium text-gray-700 mb-1">Code postal</label>
-              <input
-                id="code_postal" name="code_postal" type="text"
-                maxLength={5} pattern="\d{5}"
-                defaultValue={particulier.code_postal || ''}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="ville" className="block text-sm font-medium text-gray-700 mb-1">Ville</label>
-              <input
-                id="ville" name="ville" type="text"
-                defaultValue={particulier.ville || ''}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              id="code_postal"
+              name="code_postal"
+              type="text"
+              maxLength={5}
+              pattern="\d{5}"
+              label="Code postal"
+              defaultValue={particulier.code_postal || ''}
+            />
+            <Input
+              id="ville"
+              name="ville"
+              type="text"
+              label="Ville"
+              defaultValue={particulier.ville || ''}
+            />
           </div>
-        </div>
+        </Card>
 
-        {error && <p className="text-sm text-red-600 bg-red-50 border border-red-100 p-3 rounded-lg">{error}</p>}
-        {success && <p className="text-sm text-green-700 bg-green-50 border border-green-100 p-3 rounded-lg">Profil mis à jour avec succès !</p>}
+        {error && <AlertBanner kind="error" title={error} />}
+        {success && (
+          <AlertBanner kind="success" title="Profil mis à jour avec succès !" />
+        )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 transition-colors"
-        >
-          {loading ? 'Enregistrement...' : 'Enregistrer les modifications'}
-        </button>
+        <Button type="submit" disabled={loading} size="lg" full>
+          {loading ? 'Enregistrement…' : 'Enregistrer les modifications'}
+        </Button>
       </form>
 
       {/* Danger zone */}
-      <div className="rounded-xl border border-red-100 bg-red-50/40 p-5 mt-2">
-        <h3 className="text-sm font-semibold text-red-700 mb-1">Zone de danger</h3>
-        <p className="text-xs text-gray-500 mb-4">
-          La suppression de votre compte est définitive. Toutes vos données personnelles et vos projets seront immédiatement supprimés.
+      <Card className="border-[1.5px] border-red-200 bg-ac-red-light p-6">
+        <h3 className="mb-1 text-sm font-bold text-ac-red">Zone de danger</h3>
+        <p className="mb-4 text-xs text-ac-text-sub">
+          La suppression de votre compte est définitive. Toutes vos données personnelles
+          et vos projets seront immédiatement supprimés.
         </p>
 
         {!deleteConfirm ? (
-          <button
+          <Button
             type="button"
+            variant="danger"
+            size="sm"
             onClick={() => setDeleteConfirm(true)}
-            className="text-sm text-red-600 border border-red-200 bg-white hover:bg-red-50 px-4 py-2 rounded-lg transition-colors"
           >
             Supprimer mon compte
-          </button>
+          </Button>
         ) : (
-          <div className="space-y-3">
-            <p className="text-sm text-red-800 font-medium">Êtes-vous absolument sûr ? Cette action est irréversible.</p>
-            <div>
-              <label htmlFor="deletePassword" className="block text-sm font-medium text-red-800 mb-1">Confirmez votre mot de passe</label>
-              <input
-                type="password"
-                id="deletePassword"
-                value={deletePassword}
-                onChange={(e) => setDeletePassword(e.target.value)}
-                className="w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
-                placeholder="Mot de passe"
-              />
-              {deleteError && <p className="mt-1 text-xs text-red-600">{deleteError}</p>}
-            </div>
-            <div className="flex gap-3">
-              <button
+          <div className="flex flex-col gap-3">
+            <p className="text-sm font-semibold text-ac-red">
+              Êtes-vous absolument sûr ? Cette action est irréversible.
+            </p>
+            <Input
+              type="password"
+              id="deletePassword"
+              label="Confirmez votre mot de passe"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Mot de passe"
+              error={deleteError ?? undefined}
+            />
+            <div className="flex flex-wrap gap-2">
+              <Button
                 type="button"
+                variant="danger"
+                size="sm"
                 disabled={!deletePassword || loading}
                 onClick={async () => {
                   setLoading(true)
@@ -152,21 +160,25 @@ export default function ParticulierProfileForm({ profile, particulier }: Props) 
                   if (res?.error) setDeleteError(res.error)
                   setLoading(false)
                 }}
-                className="text-sm bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium"
               >
                 Oui, supprimer définitivement
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                onClick={() => { setDeleteConfirm(false); setDeletePassword(''); setDeleteError(null) }}
-                className="text-sm bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50"
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setDeleteConfirm(false)
+                  setDeletePassword('')
+                  setDeleteError(null)
+                }}
               >
                 Annuler
-              </button>
+              </Button>
             </div>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   )
 }
