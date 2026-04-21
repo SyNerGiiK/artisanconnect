@@ -29,7 +29,16 @@ export async function POST(req: Request) {
         const projetId = session.metadata?.projet_id;
         const particulierId = session.client_reference_id;
 
-        // Client feature purchase (boost / urgence / photos)
+        // 1. In-page Photo Pack Credit purchase (before project creation)
+        if (featureType === 'pack_photos_credit' && particulierId) {
+          const { data: part } = await supabaseAdmin.from('particuliers').select('credits_photos').eq('id', particulierId).single();
+          if (part) {
+            await supabaseAdmin.from('particuliers').update({ credits_photos: (part.credits_photos || 0) + 1 }).eq('id', particulierId);
+          }
+          break;
+        }
+
+        // 2. Client feature purchase AFTER project creation (boost / urgence / photos)
         if (featureType && projetId && particulierId) {
           // Verify projet ownership before updating
           const { data: projet, error: fetchError } = await supabaseAdmin

@@ -5,6 +5,7 @@ import StatusBadge from '@/components/ui/StatusBadge'
 import Card from '@/components/ui/Card'
 import Tag from '@/components/ui/Tag'
 import RepondreForm from './RepondreForm'
+import PhotoGallery from '@/components/projects/PhotoGallery'
 
 type ProjetDetail = {
   id: string
@@ -14,6 +15,7 @@ type ProjetDetail = {
   code_postal: string
   statut: string
   created_at: string
+  photos: string[] | null
   categories_metiers: { libelle: string } | null
 }
 
@@ -30,7 +32,7 @@ export default async function RepondrePage({
 
   const { data } = await supabase
     .from('projets')
-    .select('id, titre, description, ville, code_postal, statut, created_at, categories_metiers ( libelle )')
+    .select('id, titre, description, ville, code_postal, statut, created_at, photos, categories_metiers ( libelle )')
     .eq('id', id)
     .single()
 
@@ -56,6 +58,11 @@ export default async function RepondrePage({
         <p className="mb-4 whitespace-pre-line text-sm leading-relaxed text-ac-text-sub">
           {projet.description}
         </p>
+        
+        {projet.photos && projet.photos.length > 0 && (
+          <PhotoGallery photos={projet.photos} />
+        )}
+
         <div className="flex flex-wrap items-center gap-2 text-xs text-ac-text-muted">
           {projet.categories_metiers && (
             <Tag color="primary">{projet.categories_metiers.libelle}</Tag>

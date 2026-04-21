@@ -18,6 +18,10 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024
 export async function createProject(formData: FormData) {
   try {
     const supabase = await createClient()
+    const supabaseAdmin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return { error: 'Not authenticated' }
@@ -31,12 +35,23 @@ export async function createProject(formData: FormData) {
     if (!particulier) return { error: 'Not onboarded' }
 
     // Handle Premium options first to determine limits
-    const opt_boost = formData.get('opt_boost') === 'on'
-    const opt_urgence = formData.get('opt_urgence') === 'on'
     const opt_photos = formData.get('opt_photos') === 'on'
 
     const maxPhotos = opt_photos ? 7 : 2
     
+    // Check credits if opt_photos is used
+    if (opt_photos) {
+      const { data: creditCheck } = await supabaseAdmin
+        .from('particuliers')
+        .select('credits_photos')
+        .eq('id', particulier.id)
+        .single()
+        
+      if (!creditCheck || creditCheck.credits_photos < 1) {
+        return { error: 'Pack photos non valide ou crédit épuisé.' }
+      }
+    }
+
     // Parse the pre-uploaded URLs from the client
     const uploadedUrlsStr = formData.get('uploadedPhotosUrl') as string | null
     let uploadedUrls: string[] = []
@@ -45,7 +60,7 @@ export async function createProject(formData: FormData) {
       try {
         uploadedUrls = JSON.parse(uploadedUrlsStr)
       } catch (e) {
-        // format invalide
+        return { error: 'Format invalide pour les photos.' }
       }
     }
 
@@ -71,7 +86,8 @@ export async function createProject(formData: FormData) {
         adresse,
         code_postal: codePostal,
         ville,
-        photos: uploadedUrls
+        photos: uploadedUrls,
+        photos_unlocked: opt_photos
       })
       .select('id')
       .single()
@@ -80,40 +96,18 @@ export async function createProject(formData: FormData) {
       return { error: insertError?.message || 'Erreur lors de la création' }
     }
 
-    const line_items = []
-    const featuresList = []
-
-    if (opt_boost && FEATURE_PRICES.boost) {
-      line_items.push({ price: FEATURE_PRICES.boost, quantity: 1 })
-      featuresList.push('boost')
-    }
-    if (opt_urgence && FEATURE_PRICES.urgence) {
-      line_items.push({ price: FEATURE_PRICES.urgence, quantity: 1 })
-      featuresList.push('urgence')
-    }
-    if (opt_photos && FEATURE_PRICES.photos) {
-      line_items.push({ price: FEATURE_PRICES.photos, quantity: 1 })
-      featuresList.push('photos')
-    }
-
-    if (line_items.length > 0) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items,
-        mode: 'payment',
-        success_url: `${appUrl}/particulier/projet/${insertedProjet.id}?premium=success`,
-        cancel_url: `${appUrl}/particulier/projet/${insertedProjet.id}`,
-        client_reference_id: particulier.id,
-        metadata: { type: featuresList.join(','), projet_id: insertedProjet.id },
-      })
-
-      if (session.url) {
-        return { success: true, redirectUrl: session.url }
+    // Deduct credit after successful insert
+    if (opt_photos) {
+      const { data: partToUpdate } = await supabaseAdmin.from('particuliers').select('credits_photos').eq('id', particulier.id).single();
+      if (partToUpdate) {
+          await supabaseAdmin
+            .from('particuliers')
+            .update({ credits_photos: Math.max(0, partToUpdate.credits_photos - 1) })
+            .eq('id', particulier.id)
       }
     }
 
-    return { success: true, redirectUrl: '/particulier/dashboard' }
+    return { success: true, redirectUrl: `/particulier/projet/${insertedProjet.id}` }
   } catch (err: any) {
     return { error: err.message || 'Une erreur interne est survenue.' }
   }

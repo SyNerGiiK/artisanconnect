@@ -7,7 +7,7 @@ import StatusBadge from '@/components/ui/StatusBadge'
 import EmptyState from '@/components/ui/EmptyState'
 import AlertBanner from '@/components/ui/AlertBanner'
 import Button from '@/components/ui/Button'
-
+import PhotoGallery from '@/components/projects/PhotoGallery'
 export default async function ArtisanFeedPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -136,6 +136,10 @@ export default async function ArtisanFeedPage() {
                 <p className="text-sm text-ac-text-sub leading-relaxed line-clamp-2 mb-3.5">
                   {projet.description}
                 </p>
+
+                {projet.photos && projet.photos.length > 0 && (
+                  <PhotoGallery photos={projet.photos} />
+                )}
 
                 <div className="mb-4 flex flex-wrap gap-2">
                   {projet.categories_metiers && (

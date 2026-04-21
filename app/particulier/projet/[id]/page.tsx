@@ -11,6 +11,7 @@ import ReponseActions from '@/components/projects/ReponseActions'
 import ProjectStatusActions from '@/components/projects/ProjectStatusActions'
 import ProjetBoostOptions from '@/components/projects/ProjetBoostOptions'
 import PhotoUploader from '@/components/projects/PhotoUploader'
+import PhotoGallery from '@/components/projects/PhotoGallery'
 
 export default async function ProjetDetailPage({
   params,
@@ -96,6 +97,10 @@ export default async function ProjetDetailPage({
         <p className="mb-4 whitespace-pre-line text-sm leading-relaxed text-ac-text-sub">
           {projet.description}
         </p>
+
+        {projet.photos && projet.photos.length > 0 && (
+          <PhotoGallery photos={projet.photos} />
+        )}
 
         <div className="flex flex-wrap gap-2 text-xs text-ac-text-muted">
           <span className="inline-flex items-center gap-1 rounded-full border border-ac-border bg-ac-surface-hover px-2.5 py-0.5 font-semibold">

@@ -54,6 +54,7 @@ export type Database = {
           adresse: string | null
           code_postal: string | null
           ville: string | null
+          credits_photos: number
         }
         Insert: {
           id?: string
@@ -61,6 +62,7 @@ export type Database = {
           adresse?: string | null
           code_postal?: string | null
           ville?: string | null
+          credits_photos?: number
         }
         Update: {
           id?: string
@@ -68,6 +70,7 @@ export type Database = {
           adresse?: string | null
           code_postal?: string | null
           ville?: string | null
+          credits_photos?: number
         }
         Relationships: [
           {
