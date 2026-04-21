@@ -191,6 +191,7 @@ export type Database = {
           code_postal: string
           ville: string
           statut: 'ouvert' | 'en_cours' | 'termine' | 'annule'
+          photos: string[] | null
           created_at: string
         }
         Insert: {
@@ -203,6 +204,7 @@ export type Database = {
           code_postal: string
           ville: string
           statut?: 'ouvert' | 'en_cours' | 'termine' | 'annule'
+          photos?: string[] | null
           created_at?: string
         }
         Update: {
@@ -215,6 +217,7 @@ export type Database = {
           code_postal?: string
           ville?: string
           statut?: 'ouvert' | 'en_cours' | 'termine' | 'annule'
+          photos?: string[] | null
           created_at?: string
         }
         Relationships: [
