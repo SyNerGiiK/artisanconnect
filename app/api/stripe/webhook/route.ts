@@ -45,9 +45,10 @@ export async function POST(req: Request) {
           }
 
           const updates: Record<string, boolean> = {}
-          if (featureType === 'boost') updates.is_boosted = true
-          if (featureType === 'urgence') updates.is_urgent = true
-          if (featureType === 'photos') updates.photos_unlocked = true
+          const featuresList = featureType.split(',')
+          if (featuresList.includes('boost')) updates.is_boosted = true
+          if (featuresList.includes('urgence')) updates.is_urgent = true
+          if (featuresList.includes('photos')) updates.photos_unlocked = true
 
           if (Object.keys(updates).length > 0) {
             await supabaseAdmin.from('projets').update(updates).eq('id', projetId)

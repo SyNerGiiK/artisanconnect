@@ -127,6 +127,25 @@ export default function ArtisanProfileForm({
               label="Description de votre activité"
               defaultValue={artisan.description || ''}
             />
+            <Textarea
+              id="photos_realisations"
+              name="photos_realisations"
+              rows={3}
+              label="Photos de réalisations (URLs)"
+              placeholder="https://..."
+              defaultValue={artisan.photos_realisations?.join('\n') || ''}
+            />
+            <label className="flex cursor-pointer items-center gap-3 mt-2 rounded-ac-sm border border-ac-primary-border bg-ac-primary-light p-3">
+              <input
+                type="checkbox"
+                name="assurance_pro"
+                defaultChecked={artisan.assurance_pro}
+                className="h-4 w-4 rounded border-ac-border text-ac-primary focus:ring-ac-primary"
+              />
+              <span className="text-sm font-semibold text-ac-primary-text">
+                Je certifie posséder une Assurance Décennale / Professionnelle valide
+              </span>
+            </label>
             <div className="grid gap-4 sm:grid-cols-2">
               <Input
                 id="code_postal_base"

@@ -3,6 +3,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { validateString, validateCodePostal, validateInt } from '@/lib/utils/validation'
+import { stripe } from '@/lib/stripe'
+
+const FEATURE_PRICES: Record<string, string | undefined> = {
+  boost: process.env.STRIPE_PRICE_ID_BOOST,
+  urgence: process.env.STRIPE_PRICE_ID_URGENCE,
+  photos: process.env.STRIPE_PRICE_ID_PHOTOS,
+}
 
 export async function createProject(formData: FormData) {
   const supabase = await createClient()
@@ -10,7 +17,6 @@ export async function createProject(formData: FormData) {
 
   if (!user) redirect('/connexion')
 
-  // Get the particulier record for this user
   const { data: particulier } = await supabase
     .from('particuliers')
     .select('id')
@@ -31,7 +37,7 @@ export async function createProject(formData: FormData) {
     return { error: (e as Error).message }
   }
 
-  const { error } = await supabase
+  const { data: insertedProjet, error } = await supabase
     .from('projets')
     .insert({
       particulier_id: particulier.id,
@@ -42,9 +48,49 @@ export async function createProject(formData: FormData) {
       code_postal: codePostal,
       ville,
     })
+    .select('id')
+    .single()
 
-  if (error) {
-    return { error: error.message }
+  if (error || !insertedProjet) {
+    return { error: error?.message || 'Erreur lors de la création' }
+  }
+
+  // Handle Premium features
+  const opt_boost = formData.get('opt_boost') === 'on'
+  const opt_urgence = formData.get('opt_urgence') === 'on'
+  const opt_photos = formData.get('opt_photos') === 'on'
+
+  const line_items = []
+  const featuresList = []
+
+  if (opt_boost && FEATURE_PRICES.boost) {
+    line_items.push({ price: FEATURE_PRICES.boost, quantity: 1 })
+    featuresList.push('boost')
+  }
+  if (opt_urgence && FEATURE_PRICES.urgence) {
+    line_items.push({ price: FEATURE_PRICES.urgence, quantity: 1 })
+    featuresList.push('urgence')
+  }
+  if (opt_photos && FEATURE_PRICES.photos) {
+    line_items.push({ price: FEATURE_PRICES.photos, quantity: 1 })
+    featuresList.push('photos')
+  }
+
+  if (line_items.length > 0) {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items,
+      mode: 'payment',
+      success_url: `${appUrl}/particulier/projet/${insertedProjet.id}?premium=success`,
+      cancel_url: `${appUrl}/particulier/projet/${insertedProjet.id}`,
+      client_reference_id: particulier.id,
+      metadata: { type: featuresList.join(','), projet_id: insertedProjet.id },
+    })
+
+    if (session.url) {
+      redirect(session.url)
+    }
   }
 
   redirect('/particulier/dashboard')

@@ -26,6 +26,10 @@ export async function updateArtisanProfile(formData: FormData) {
     return { error: (e as Error).message }
   }
 
+  const assurance_pro = formData.get('assurance_pro') === 'on'
+  const photosRaw = formData.get('photos_realisations')?.toString() || ''
+  const photos_realisations = photosRaw.split('\n').map(p => p.trim()).filter(p => p !== '')
+
   // 1. Update Profile
   const { error: profileError } = await supabase
     .from('profiles')
@@ -47,6 +51,8 @@ export async function updateArtisanProfile(formData: FormData) {
       description: description || null,
       code_postal_base: codePostalBase,
       rayon_km: rayonKm || 30,
+      assurance_pro,
+      photos_realisations
     })
     .eq('profil_id', user.id)
     .select('id')

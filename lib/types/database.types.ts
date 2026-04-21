@@ -93,6 +93,8 @@ export type Database = {
           abonnement_expire_le: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          photos_realisations: string[] | null
+          assurance_pro: boolean
         }
         Insert: {
           id?: string
@@ -107,6 +109,8 @@ export type Database = {
           abonnement_expire_le?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          photos_realisations?: string[] | null
+          assurance_pro?: boolean
         }
         Update: {
           id?: string
@@ -121,6 +125,8 @@ export type Database = {
           abonnement_expire_le?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          photos_realisations?: string[] | null
+          assurance_pro?: boolean
         }
         Relationships: [
           {
@@ -192,7 +198,11 @@ export type Database = {
           ville: string
           statut: 'ouvert' | 'en_cours' | 'termine' | 'annule'
           photos: string[] | null
+          is_boosted: boolean
+          is_urgent: boolean
+          photos_unlocked: boolean
           created_at: string
+          updated_at: string
         }
         Insert: {
           id?: string
@@ -205,7 +215,11 @@ export type Database = {
           ville: string
           statut?: 'ouvert' | 'en_cours' | 'termine' | 'annule'
           photos?: string[] | null
+          is_boosted?: boolean
+          is_urgent?: boolean
+          photos_unlocked?: boolean
           created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
@@ -218,7 +232,11 @@ export type Database = {
           ville?: string
           statut?: 'ouvert' | 'en_cours' | 'termine' | 'annule'
           photos?: string[] | null
+          is_boosted?: boolean
+          is_urgent?: boolean
+          photos_unlocked?: boolean
           created_at?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -367,6 +385,58 @@ export type Database = {
           }
         ]
       }
+      avis: {
+        Row: {
+          id: string
+          particulier_id: string
+          artisan_id: string
+          projet_id: string
+          note: number
+          commentaire: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          particulier_id: string
+          artisan_id: string
+          projet_id: string
+          note: number
+          commentaire: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          particulier_id?: string
+          artisan_id?: string
+          projet_id?: string
+          note?: number
+          commentaire?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'avis_particulier_id_fkey'
+            columns: ['particulier_id']
+            isOneToOne: false
+            referencedRelation: 'particuliers'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'avis_artisan_id_fkey'
+            columns: ['artisan_id']
+            isOneToOne: false
+            referencedRelation: 'artisans'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'avis_projet_id_fkey'
+            columns: ['projet_id']
+            isOneToOne: false
+            referencedRelation: 'projets'
+            referencedColumns: ['id']
+          }
+        ]
+      }
     }
     Views: {
       v_conversations_details: {
@@ -401,8 +471,11 @@ export type Database = {
           siret: string | null
           code_postal_base: string
           rayon_km: number
-          created_at: string
+          assurance_pro: boolean
+          photos_realisations: string[] | null
           updated_at: string
+          note_moyenne: number
+          nombre_avis: number
         }
         Relationships: []
       }
@@ -443,3 +516,4 @@ export type Message = Database['public']['Tables']['messages']['Row']
 export type ProjetStatut = Projet['statut']
 export type ReponseStatut = Reponse['statut']
 export type UserRole = Profile['role']
+export type Avis = Database['public']['Tables']['avis']['Row']

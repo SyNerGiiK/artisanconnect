@@ -171,9 +171,9 @@ export default async function ProjetDetailPage({
                       size={42}
                     />
                     <div>
-                      <div className="text-[15px] font-bold text-ac-text">
+                      <Link href={`/particulier/artisan/${artisanId}`} className="text-[15px] font-bold text-ac-text hover:text-ac-primary transition-colors inline-block">
                         {reponse.artisans?.nom_entreprise ?? 'Artisan'}
-                      </div>
+                      </Link>
                       {reponse.artisans?.code_postal_base && (
                         <div className="text-xs text-ac-text-muted">
                           Basé à {reponse.artisans.code_postal_base}
@@ -210,9 +210,14 @@ export default async function ProjetDetailPage({
                 )}
 
                 {reponse.statut === 'acceptee' && convId && (
-                  <Button href={`/particulier/conversations/${convId}`} size="sm">
-                    💬 Ouvrir la conversation →
-                  </Button>
+                  <div className="flex flex-wrap gap-3">
+                    <Button href={`/particulier/conversations/${convId}`} size="sm">
+                      💬 Ouvrir la conversation
+                    </Button>
+                    <Button variant="secondary" href={`/particulier/donner-avis?artisan=${artisanId}&projet=${projet.id}`} size="sm">
+                      ⭐ Noter l'artisan
+                    </Button>
+                  </div>
                 )}
               </Card>
             )

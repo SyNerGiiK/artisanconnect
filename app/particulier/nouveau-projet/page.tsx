@@ -132,6 +132,35 @@ export default function NouveauProjetPage() {
             </span>
           </div>
 
+          {/* Options Premium */}
+          <div className="mt-2 flex flex-col gap-3 rounded-ac-sm border border-ac-border bg-ac-surface p-4">
+            <h3 className="text-sm font-bold text-ac-text">Options Premium (Optionnel)</h3>
+            
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" name="opt_boost" className="mt-1 h-4 w-4 rounded border-ac-border text-ac-primary focus:ring-ac-primary" />
+              <div>
+                <span className="block text-sm font-semibold text-ac-text group-hover:text-ac-primary transition-colors">🚀 Projet Boosté</span>
+                <span className="block text-[13px] text-ac-text-sub">Apparaissez en tête de liste chez les artisans (environ 3x plus de réponses)</span>
+              </div>
+            </label>
+
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" name="opt_urgence" className="mt-1 h-4 w-4 rounded border-ac-border text-ac-primary focus:ring-ac-primary" />
+              <div>
+                <span className="block text-sm font-semibold text-ac-text group-hover:text-ac-primary transition-colors">🔥 Marqueur Urgent</span>
+                <span className="block text-[13px] text-ac-text-sub">Signalez que vos travaux doivent être pris en charge très rapidement</span>
+              </div>
+            </label>
+
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" name="opt_photos" className="mt-1 h-4 w-4 rounded border-ac-border text-ac-primary focus:ring-ac-primary" />
+              <div>
+                <span className="block text-sm font-semibold text-ac-text group-hover:text-ac-primary transition-colors">📸 Option Photos Avancée</span>
+                <span className="block text-[13px] text-ac-text-sub">Débloquez l&apos;ajout jusqu&apos;à 10 photos au lieu de 3, pour des devis plus précis</span>
+              </div>
+            </label>
+          </div>
+
           {error && (
             <div className="rounded-ac-sm border border-red-200 bg-ac-red-light p-3.5 text-sm text-ac-red">
               {error}
