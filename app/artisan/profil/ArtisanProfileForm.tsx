@@ -127,14 +127,23 @@ export default function ArtisanProfileForm({
               label="Description de votre activité"
               defaultValue={artisan.description || ''}
             />
-            <Textarea
-              id="photos_realisations"
-              name="photos_realisations"
-              rows={3}
-              label="Photos de réalisations (URLs)"
-              placeholder="https://..."
-              defaultValue={artisan.photos_realisations?.join('\n') || ''}
-            />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-semibold text-ac-text">
+                Ajouter des photos de réalisations
+              </label>
+              <input
+                type="file"
+                name="photos_realisations_files"
+                multiple
+                accept="image/jpeg,image/png,image/webp"
+                className="text-sm text-ac-text-sub file:mr-4 file:py-2 file:px-4 file:rounded-ac-sm file:border-0 file:text-sm file:font-semibold file:bg-ac-primary-light file:text-ac-primary hover:file:bg-ac-primary-light/80 cursor-pointer"
+              />
+              {artisan.photos_realisations && artisan.photos_realisations.length > 0 && (
+                <p className="text-xs text-ac-text-sub">
+                  Vous avez déjà {artisan.photos_realisations.length} photo(s) en ligne. Les nouveaux fichiers y seront ajoutés.
+                </p>
+              )}
+            </div>
             <label className="flex cursor-pointer items-center gap-3 mt-2 rounded-ac-sm border border-ac-primary-border bg-ac-primary-light p-3">
               <input
                 type="checkbox"

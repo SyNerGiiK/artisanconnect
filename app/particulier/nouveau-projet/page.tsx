@@ -14,6 +14,8 @@ export default function NouveauProjetPage() {
   const [categories, setCategories] = useState<CategorieMetier[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [optPhotos, setOptPhotos] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
 
   useEffect(() => {
     async function fetchCategories() {
@@ -27,7 +29,19 @@ export default function NouveauProjetPage() {
     fetchCategories()
   }, [])
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || [])
+    setSelectedFiles(files)
+    setError(null)
+  }
+
   async function handleSubmit(formData: FormData) {
+    const maxPhotos = optPhotos ? 7 : 2;
+    if (selectedFiles.length > maxPhotos) {
+      setError(`Vous ne pouvez sélectionner que ${maxPhotos} photo(s) au maximum avec vos options actuelles.`)
+      return
+    }
+
     setLoading(true)
     setError(null)
     const result = await createProject(formData)
@@ -125,6 +139,30 @@ export default function NouveauProjetPage() {
             />
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold text-ac-text">
+              Photos du projet ({optPhotos ? 'Max 7' : 'Max 2'})
+            </label>
+            <input
+              type="file"
+              name="photos"
+              multiple
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              className="text-sm text-ac-text-sub file:mr-4 file:py-2 file:px-4 file:rounded-ac-sm file:border-0 file:text-sm file:font-semibold file:bg-ac-primary-light file:text-ac-primary hover:file:bg-ac-primary-light/80 cursor-pointer"
+            />
+            {selectedFiles.length > 0 && (
+              <p className="text-xs text-ac-text-sub mt-1">
+                {selectedFiles.length} fichier(s) sélectionné(s)
+              </p>
+            )}
+            {selectedFiles.length > (optPhotos ? 7 : 2) && (
+              <p className="text-xs font-bold text-ac-red mt-1">
+                Vous avez dépassé la limite de photos autorisées.
+              </p>
+            )}
+          </div>
+
           <div className="flex gap-2.5 rounded-ac-sm border border-ac-primary-border bg-ac-primary-light px-4 py-3 text-[13px] text-ac-primary-text">
             <span>🔒</span>
             <span>
@@ -153,10 +191,19 @@ export default function NouveauProjetPage() {
             </label>
 
             <label className="flex items-start gap-3 cursor-pointer group">
-              <input type="checkbox" name="opt_photos" className="mt-1 h-4 w-4 rounded border-ac-border text-ac-primary focus:ring-ac-primary" />
+              <input 
+                type="checkbox" 
+                name="opt_photos" 
+                checked={optPhotos}
+                onChange={(e) => {
+                  setOptPhotos(e.target.checked)
+                  setError(null)
+                }}
+                className="mt-1 h-4 w-4 rounded border-ac-border text-ac-primary focus:ring-ac-primary" 
+              />
               <div>
                 <span className="block text-sm font-semibold text-ac-text group-hover:text-ac-primary transition-colors">📸 Option Photos Avancée</span>
-                <span className="block text-[13px] text-ac-text-sub">Débloquez l&apos;ajout jusqu&apos;à 10 photos au lieu de 3, pour des devis plus précis</span>
+                <span className="block text-[13px] text-ac-text-sub">Débloquez l&apos;ajout jusqu&apos;à 7 photos au lieu de 2, pour des devis plus précis</span>
               </div>
             </label>
           </div>
@@ -167,7 +214,7 @@ export default function NouveauProjetPage() {
             </div>
           )}
 
-          <Button type="submit" full size="lg" disabled={loading}>
+          <Button type="submit" full size="lg" disabled={loading || selectedFiles.length > (optPhotos ? 7 : 2)}>
             {loading ? 'Publication…' : 'Publier mon projet →'}
           </Button>
         </form>

@@ -27,8 +27,46 @@ export async function updateArtisanProfile(formData: FormData) {
   }
 
   const assurance_pro = formData.get('assurance_pro') === 'on'
-  const photosRaw = formData.get('photos_realisations')?.toString() || ''
-  const photos_realisations = photosRaw.split('\n').map(p => p.trim()).filter(p => p !== '')
+
+  // Fetch current artisan to preserve existing photos
+  const { data: currentArtisan } = await supabase
+    .from('artisans')
+    .select('id, photos_realisations')
+    .eq('profil_id', user.id)
+    .single()
+
+  let uploadedPhotos: string[] = currentArtisan?.photos_realisations || []
+
+  const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp']
+  const MAX_FILE_SIZE = 5 * 1024 * 1024
+
+  const filesRaw = formData.getAll('photos_realisations_files') as File[]
+  const validFiles = filesRaw.filter(f => f.size > 0)
+
+  if (uploadedPhotos.length + validFiles.length > 20) {
+    return { error: 'Vous ne pouvez pas dépasser 20 photos au total dans votre portfolio.' }
+  }
+
+  for (const file of validFiles) {
+    if (!ALLOWED_MIMES.includes(file.type)) return { error: 'Un fichier a un format non supporté (JPEG, PNG, WebP)' }
+    if (file.size > MAX_FILE_SIZE) return { error: 'Une image est trop lourde (max 5 Mo)' }
+  }
+
+  // Upload new files
+  if (validFiles.length > 0 && currentArtisan) {
+    for (const file of validFiles) {
+      const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+      const path = `${currentArtisan.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('artisan-photos')
+        .upload(path, file, { contentType: file.type, upsert: false })
+      
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage.from('artisan-photos').getPublicUrl(path)
+        uploadedPhotos.push(publicUrl)
+      }
+    }
+  }
 
   // 1. Update Profile
   const { error: profileError } = await supabase
@@ -52,7 +90,7 @@ export async function updateArtisanProfile(formData: FormData) {
       code_postal_base: codePostalBase,
       rayon_km: rayonKm || 30,
       assurance_pro,
-      photos_realisations
+      photos_realisations: uploadedPhotos
     })
     .eq('profil_id', user.id)
     .select('id')
