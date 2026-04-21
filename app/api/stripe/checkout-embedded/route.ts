@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
     // Create a Checkout Session with ui_mode: 'embedded'
     const checkoutSession = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded' as any,
+      ui_mode: 'embedded_page',
       payment_method_types: ['card'],
       line_items: [
         {
