@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     if (!projet) return new NextResponse('Projet not found', { status: 404 })
 
     const priceId = FEATURE_PRICES[featureType as FeatureType]!
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const appUrl = body.return_url || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

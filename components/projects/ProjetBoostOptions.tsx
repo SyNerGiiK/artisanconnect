@@ -18,7 +18,11 @@ export default function ProjetBoostOptions({ projetId, isBoosted, isUrgent, phot
       const res = await fetch('/api/stripe/checkout-projet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, projet_id: projetId }),
+        body: JSON.stringify({ 
+          type, 
+          projet_id: projetId,
+          return_url: window.location.origin 
+        }),
       })
       const data = await res.json()
       if (data.url) window.location.href = data.url
