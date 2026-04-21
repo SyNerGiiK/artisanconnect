@@ -80,7 +80,7 @@ export default function NouveauProjetPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          return_url: `${window.location.origin}${window.location.pathname}?pack=success`
+          return_url: `${window.location.origin}${window.location.pathname}?pack=success&session_id={CHECKOUT_SESSION_ID}`
         })
       })
       
@@ -89,7 +89,7 @@ export default function NouveauProjetPage() {
         setClientSecret(data.clientSecret)
         setShowStripeModal(true)
       } else {
-        setError(data.error || 'Erreur inconnue')
+        setError(data.details ? `${data.error} : ${data.details}` : data.error || 'Erreur inconnue')
       }
     } catch(e) {
       setError('Erreur réseau lors de la communication avec le serveur de paiement.')

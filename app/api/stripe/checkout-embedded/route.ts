@@ -50,6 +50,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ clientSecret: checkoutSession.client_secret })
   } catch (err: any) {
     console.error('Stripe Embedded Checkout Error:', err)
-    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Erreur interne du serveur', 
+      details: err.message || err.toString() 
+    }, { status: 500 })
   }
 }
