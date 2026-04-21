@@ -37,37 +37,20 @@ export async function updateArtisanProfile(formData: FormData) {
 
   let uploadedPhotos: string[] = currentArtisan?.photos_realisations || []
 
-  const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp']
-  const MAX_FILE_SIZE = 5 * 1024 * 1024
-
-  const filesRaw = formData.getAll('photos_realisations_files') as File[]
-  const validFiles = filesRaw.filter(f => f && typeof f === 'object' && f.size > 0)
-
-  if (uploadedPhotos.length + validFiles.length > 20) {
-    return { error: 'Vous ne pouvez pas dépasser 20 photos au total dans votre portfolio.' }
-  }
-
-  for (const file of validFiles) {
-    if (!ALLOWED_MIMES.includes(file.type)) return { error: 'Un fichier a un format non supporté (JPEG, PNG, WebP)' }
-    if (file.size > MAX_FILE_SIZE) return { error: 'Une image est trop lourde (max 5 Mo)' }
-  }
-
-  // Upload new files
-  if (validFiles.length > 0 && currentArtisan) {
-    for (const file of validFiles) {
-      const ext = file.name ? file.name.split('.').pop()?.toLowerCase() || 'jpg' : 'jpg'
-      const path = `${currentArtisan.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
-      const { error: uploadError } = await supabase.storage
-        .from('artisan-photos')
-        .upload(path, file, { contentType: file.type, upsert: false })
-      
-      if (!uploadError) {
-        const { data: { publicUrl } } = supabase.storage.from('artisan-photos').getPublicUrl(path)
-        uploadedPhotos.push(publicUrl)
-      } else {
-        return { error: `Upload error: ${uploadError.message}` }
-      }
+  // Parse the pre-uploaded URLs from the client bypassing Vercel 4.5MB payload limit
+  const uploadedUrlsStr = formData.get('uploadedPhotosUrl') as string | null
+  
+  if (uploadedUrlsStr) {
+    try {
+      const parsedUrls = JSON.parse(uploadedUrlsStr) as string[]
+      uploadedPhotos = [...uploadedPhotos, ...parsedUrls]
+    } catch(e) {
+      return { error: 'Erreur lors du traitement des images' }
     }
+  }
+
+  if (uploadedPhotos.length > 20) {
+    return { error: 'Vous ne pouvez pas dépasser 20 photos au total dans votre portfolio.' }
   }
 
   // 1. Update Profile

@@ -36,16 +36,21 @@ export async function createProject(formData: FormData) {
     const opt_photos = formData.get('opt_photos') === 'on'
 
     const maxPhotos = opt_photos ? 7 : 2
-    const photosData = formData.getAll('photos') as File[]
-    const validPhotos = photosData.filter(f => f && typeof f === 'object' && f.size > 0)
     
-    if (validPhotos.length > maxPhotos) {
-      return { error: `Maximum ${maxPhotos} photos autorisées.` }
+    // Parse the pre-uploaded URLs from the client
+    const uploadedUrlsStr = formData.get('uploadedPhotosUrl') as string | null
+    let uploadedUrls: string[] = []
+    
+    if (uploadedUrlsStr) {
+      try {
+        uploadedUrls = JSON.parse(uploadedUrlsStr)
+      } catch (e) {
+        // format invalide
+      }
     }
 
-    for (const file of validPhotos) {
-      if (!ALLOWED_MIMES.includes(file.type)) return { error: 'Format non supporté (JPEG, PNG, WebP)' }
-      if (file.size > MAX_FILE_SIZE) return { error: 'Une image est trop lourde (max 5 Mo)' }
+    if (uploadedUrls.length > maxPhotos) {
+      return { error: `Maximum ${maxPhotos} photos autorisées.` }
     }
 
     let titre, description, categorieId, adresse, codePostal, ville;
@@ -66,45 +71,13 @@ export async function createProject(formData: FormData) {
         adresse,
         code_postal: codePostal,
         ville,
+        photos: uploadedUrls
       })
       .select('id')
       .single()
 
     if (insertError || !insertedProjet) {
       return { error: insertError?.message || 'Erreur lors de la création' }
-    }
-
-    // Upload photos if any
-    const uploadedUrls: string[] = []
-    if (validPhotos.length > 0) {
-      const adminClient = createAdminClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-        process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-      )
-      if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-        return { error: 'Missing SUPABASE_SERVICE_ROLE_KEY in environment' }
-      }
-      for (const file of validPhotos) {
-        const ext = file.name ? file.name.split('.').pop()?.toLowerCase() || 'jpg' : 'jpg'
-        const path = `${insertedProjet.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
-        const { error: uploadError } = await adminClient.storage
-          .from('projet-photos')
-          .upload(path, file, { contentType: file.type, upsert: false })
-        
-        if (!uploadError) {
-          const { data: { publicUrl } } = adminClient.storage.from('projet-photos').getPublicUrl(path)
-          uploadedUrls.push(publicUrl)
-        } else {
-          return { error: `Upload error: ${uploadError.message}` }
-        }
-      }
-
-      if (uploadedUrls.length > 0) {
-        await supabase
-          .from('projets')
-          .update({ photos: uploadedUrls })
-          .eq('id', insertedProjet.id)
-      }
     }
 
     const line_items = []

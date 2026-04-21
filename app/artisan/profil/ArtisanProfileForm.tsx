@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { updateArtisanProfile } from './actions'
 import { deleteUserAccount } from '@/app/(auth)/rgpd-actions'
 import type { CategorieMetier } from '@/lib/types/database.types'
@@ -52,6 +53,61 @@ export default function ArtisanProfileForm({
 
     selectedCategories.forEach((id) => formData.append('categorie_ids', String(id)))
     if (artisan.slug) formData.append('slug', artisan.slug)
+
+    // CLIENT-SIDE UPLOAD to bypass Vercel 4.5MB limit
+    const uploadedUrls: string[] = []
+    const filesRaw = formData.getAll('photos_realisations_files') as File[]
+    const validFiles = filesRaw.filter(f => f && typeof f === 'object' && f.size > 0)
+
+    if (validFiles.length > 0) {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        setError("Erreur : Impossible de vérifier l'authentification.")
+        setLoading(false)
+        return
+      }
+
+      const MAX_FILE_SIZE = 5 * 1024 * 1024
+      const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp']
+
+      for (const file of validFiles) {
+        if (!ALLOWED_MIMES.includes(file.type)) {
+          setError('Un fichier a un format non supporté (JPEG, PNG, WebP)')
+          setLoading(false)
+          return
+        }
+        if (file.size > MAX_FILE_SIZE) {
+          setError('Une image est trop lourde (max 5 Mo)')
+          setLoading(false)
+          return
+        }
+      }
+
+      const uploadPrefix = artisan.id || session.user.id
+      for (const file of validFiles) {
+        const ext = file.name ? file.name.split('.').pop()?.toLowerCase() || 'jpg' : 'jpg'
+        const path = `${uploadPrefix}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
+        const { error: uploadError } = await supabase.storage
+          .from('artisan-photos')
+          .upload(path, file, { contentType: file.type, upsert: false })
+        
+        if (uploadError) {
+          setError(`Erreur lors du transfert: ${uploadError.message}`)
+          setLoading(false)
+          return
+        }
+        
+        const { data: { publicUrl } } = supabase.storage.from('artisan-photos').getPublicUrl(path)
+        uploadedUrls.push(publicUrl)
+      }
+    }
+
+    formData.delete('photos_realisations_files')
+    if (uploadedUrls.length > 0) {
+      formData.append('uploadedPhotosUrl', JSON.stringify(uploadedUrls))
+    }
 
     const result = await updateArtisanProfile(formData)
     if (result?.error) setError(result.error)

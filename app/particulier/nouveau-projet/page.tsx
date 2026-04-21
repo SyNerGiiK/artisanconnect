@@ -44,6 +44,67 @@ export default function NouveauProjetPage() {
 
     setLoading(true)
     setError(null)
+    
+    // 1. Upload files securely from client-side to bypass Vercel 4.5MB payload limit
+    const uploadedUrls: string[] = []
+    
+    if (selectedFiles.length > 0) {
+      const supabase = createClient()
+      
+      // Verification session user
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        setError("Erreur : Impossible de vérifier l'authentification. Veuillez vous reconnecter.")
+        setLoading(false)
+        return
+      }
+      
+      const MAX_FILE_SIZE = 5 * 1024 * 1024
+      const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp']
+      
+      for (const file of selectedFiles) {
+        if (!ALLOWED_MIMES.includes(file.type)) {
+          setError('Format non supporté (JPEG, PNG, WebP)')
+          setLoading(false)
+          return
+        }
+        if (file.size > MAX_FILE_SIZE) {
+          setError('Une image est trop lourde (max 5 Mo)')
+          setLoading(false)
+          return
+        }
+      }
+
+      // Generate a temporary unique folder ID or use username
+      const uploadPrefix = session.user.id; 
+
+      for (const file of selectedFiles) {
+        const ext = file.name ? file.name.split('.').pop()?.toLowerCase() || 'jpg' : 'jpg'
+        const path = `${uploadPrefix}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
+        const { error: uploadError } = await supabase.storage
+          .from('projet-photos')
+          .upload(path, file, { contentType: file.type, upsert: false })
+        
+        if (uploadError) {
+          setError(`Erreur lors du transfert d'image: ${uploadError.message}`)
+          setLoading(false)
+          return
+        }
+        
+        const { data: { publicUrl } } = supabase.storage.from('projet-photos').getPublicUrl(path)
+        uploadedUrls.push(publicUrl)
+      }
+    }
+    
+    // 2. Strip large files out of the payload!
+    formData.delete('photos')
+    
+    // Append the uploaded URLs as a stringified array
+    if (uploadedUrls.length > 0) {
+      formData.append('uploadedPhotosUrl', JSON.stringify(uploadedUrls))
+    }
+
+    // 3. Send lightweight text-only formData to the Server Action
     const result = await createProject(formData)
     
     if (result?.error) {
