@@ -16,6 +16,8 @@ type ProjetDetail = {
   statut: string
   created_at: string
   photos: string[] | null
+  is_boosted: boolean | null
+  is_urgent: boolean | null
   categories_metiers: { libelle: string } | null
 }
 
@@ -32,7 +34,7 @@ export default async function RepondrePage({
 
   const { data } = await supabase
     .from('projets')
-    .select('id, titre, description, ville, code_postal, statut, created_at, photos, categories_metiers ( libelle )')
+    .select('id, titre, description, ville, code_postal, statut, created_at, photos, is_boosted, is_urgent, categories_metiers ( libelle )')
     .eq('id', id)
     .single()
 
@@ -64,6 +66,16 @@ export default async function RepondrePage({
         )}
 
         <div className="flex flex-wrap items-center gap-2 text-xs text-ac-text-muted">
+          {projet.is_boosted && (
+            <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700">
+              🚀 Boosté
+            </span>
+          )}
+          {projet.is_urgent && (
+            <span className="rounded-full bg-ac-red-light px-2.5 py-0.5 text-[11px] font-bold text-ac-red">
+              ⚡ Urgent
+            </span>
+          )}
           {projet.categories_metiers && (
             <Tag color="primary">{projet.categories_metiers.libelle}</Tag>
           )}

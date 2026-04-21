@@ -83,6 +83,16 @@ export default async function ProjetDetailPage({
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="mb-2 flex flex-wrap items-center gap-2">
+              {projet.is_boosted && (
+                <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-bold text-indigo-700">
+                  🚀 Boosté
+                </span>
+              )}
+              {projet.is_urgent && (
+                <span className="rounded-full bg-ac-red-light px-2.5 py-0.5 text-xs font-bold text-ac-red">
+                  ⚡ Urgent
+                </span>
+              )}
               {projet.categories_metiers && (
                 <Tag color="primary">{projet.categories_metiers.libelle}</Tag>
               )}

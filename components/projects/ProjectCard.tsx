@@ -13,6 +13,8 @@ type ProjectWithRelations = {
   created_at: string
   categories_metiers: { libelle: string } | null
   reponses: { id: string; statut: string }[] | null
+  is_boosted?: boolean
+  is_urgent?: boolean
 }
 
 export default function ProjectCard({
@@ -45,6 +47,16 @@ export default function ProjectCard({
         </p>
 
         <div className="mb-3.5 flex flex-wrap items-center gap-2">
+          {projet.is_boosted && (
+            <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700">
+              🚀 Boosté
+            </span>
+          )}
+          {projet.is_urgent && (
+            <span className="rounded-full bg-ac-red-light px-2.5 py-0.5 text-[11px] font-bold text-ac-red">
+              ⚡ Urgent
+            </span>
+          )}
           {projet.categories_metiers && (
             <Tag color="primary">{projet.categories_metiers.libelle}</Tag>
           )}
