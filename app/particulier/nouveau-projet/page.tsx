@@ -45,9 +45,12 @@ export default function NouveauProjetPage() {
     setLoading(true)
     setError(null)
     const result = await createProject(formData)
+    
     if (result?.error) {
       setError(result.error)
       setLoading(false)
+    } else if (result?.success && result?.redirectUrl) {
+      window.location.href = result.redirectUrl
     }
   }
 

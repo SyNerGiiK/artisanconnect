@@ -41,7 +41,7 @@ export async function updateArtisanProfile(formData: FormData) {
   const MAX_FILE_SIZE = 5 * 1024 * 1024
 
   const filesRaw = formData.getAll('photos_realisations_files') as File[]
-  const validFiles = filesRaw.filter(f => f.size > 0)
+  const validFiles = filesRaw.filter(f => f && typeof f === 'object' && f.size > 0)
 
   if (uploadedPhotos.length + validFiles.length > 20) {
     return { error: 'Vous ne pouvez pas dépasser 20 photos au total dans votre portfolio.' }
@@ -55,7 +55,7 @@ export async function updateArtisanProfile(formData: FormData) {
   // Upload new files
   if (validFiles.length > 0 && currentArtisan) {
     for (const file of validFiles) {
-      const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+      const ext = file.name ? file.name.split('.').pop()?.toLowerCase() || 'jpg' : 'jpg'
       const path = `${currentArtisan.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
       const { error: uploadError } = await supabase.storage
         .from('artisan-photos')
@@ -64,6 +64,8 @@ export async function updateArtisanProfile(formData: FormData) {
       if (!uploadError) {
         const { data: { publicUrl } } = supabase.storage.from('artisan-photos').getPublicUrl(path)
         uploadedPhotos.push(publicUrl)
+      } else {
+        return { error: `Upload error: ${uploadError.message}` }
       }
     }
   }
